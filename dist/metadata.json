@@ -1,0 +1,8 @@
+{
+  "name": "Bill Maniac: Smart Expense Management",
+  "description": "Commercial landing page for Bill Maniac Pro — AI receipt scanning with private cloud storage (Cloudflare D1 + R2), Google sign-in, web + Android.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "prompt": ""
+}

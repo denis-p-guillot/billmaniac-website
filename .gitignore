@@ -1,0 +1,11 @@
+# Local secrets / generated state
+.env
+config/sitemap-notify.secret
+config/sitemap-submit.state.json
+
+# OS / tooling
+.DS_Store
+**/.DS_Store
+.wrangler/
+**/.wrangler/
+**/node_modules/

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/pics/*",
+    "/robots.txt",
+    "/manifest.json",
+    "/metadata.json",
+    "/*.txt",
+    "/_headers",
+    "/_redirects"
+  ]
+}
