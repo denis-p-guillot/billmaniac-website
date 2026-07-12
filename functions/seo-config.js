@@ -1,6 +1,6 @@
 /** Shared SEO config for Cloudflare Pages middleware + sitemap. */
 export const SITE_ORIGIN = "https://billmaniac.win";
-export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/pics/og-cover.jpg`;
+export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/pics/hero-track-expenses.jpg`;
 
 /**
  * @typedef {{ title: string, description: string, path: string, priority: number, changefreq: string, pageKey: string, scrollTo?: string }} SeoPage
