@@ -104,6 +104,7 @@ export async function onRequest(context) {
   // Never HTML-SEO-patch APIs, assets, or sitemap endpoints.
   if (
     ASSET_EXT.test(path) ||
+    path.startsWith("/pics/") ||
     path.startsWith("/cdn-cgi/") ||
     path.startsWith("/api/") ||
     url.pathname.startsWith("/api/") ||
