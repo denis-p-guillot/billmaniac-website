@@ -56,6 +56,24 @@ export const SEO_PAGES = {
     changefreq: "weekly",
     pageKey: "android",
   },
+  "/services": {
+    title: "Products & Services — Bill Maniac",
+    description:
+      "AI receipt scanning, private cloud expense database, analytics, exports, and support plans from PT. DEVINCI GROUP INDONESIA.",
+    path: "/services",
+    priority: 0.9,
+    changefreq: "monthly",
+    pageKey: "services",
+  },
+  "/checkout": {
+    title: "Checkout — Subscribe to Bill Maniac",
+    description:
+      "Choose Free, Pro, or Maniac and complete your yearly subscription request with PT. DEVINCI GROUP INDONESIA.",
+    path: "/checkout",
+    priority: 0.8,
+    changefreq: "monthly",
+    pageKey: "checkout",
+  },
   "/about": {
     title: "About — Bill Maniac",
     description:

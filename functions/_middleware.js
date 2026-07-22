@@ -1,7 +1,7 @@
 import { DEFAULT_OG_IMAGE, SITE_ORIGIN, SEO_PAGES, getSeoForPath, normalizePath } from "./seo-config.js";
 
 const ASSET_EXT =
-  /\.(xml|txt|json|js|css|png|jpe?g|gif|webp|svg|ico|woff2?|map|webmanifest)$/i;
+  /\.(xml|txt|json|js|mjs|cjs|ts|tsx|jsx|css|png|jpe?g|gif|webp|svg|ico|woff2?|map|webmanifest)$/i;
 
 function upsertMetaByName(html, name, content) {
   const re = new RegExp(
@@ -100,6 +100,14 @@ export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
   const path = normalizePath(url.pathname);
+
+  // Legacy entry probed by some browsers/tools — never return SEO HTML as a module.
+  if (path === "/index.tsx" || path === "/index.ts" || path === "/main.tsx") {
+    return new Response("/* legacy entry disabled; use importmap @/index */\n", {
+      status: 200,
+      headers: { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" },
+    });
+  }
 
   // Never HTML-SEO-patch APIs, assets, or sitemap endpoints.
   if (
