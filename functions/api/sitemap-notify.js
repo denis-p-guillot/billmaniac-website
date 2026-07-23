@@ -1,4 +1,4 @@
-import { buildSitemapXml, listSitemapEntries, notifySearchEngines } from "../sitemap-lib.js";
+import { buildSitemapIndexXml, buildPagesSitemapXml, listSitemapEntries, notifySearchEngines } from "../sitemap-lib.js";
 import { SITE_ORIGIN } from "../seo-config.js";
 
 function json(data, status = 200) {
@@ -45,7 +45,11 @@ async function handleStatus(env) {
     site: SITE_ORIGIN,
     lastmod,
     urlCount: listSitemapEntries(lastmod).length,
-    sitemapXmlBytes: buildSitemapXml(lastmod).length,
+    sitemapIndexBytes: buildSitemapIndexXml(lastmod).length,
+    sitemapPagesBytes: buildPagesSitemapXml(lastmod).length,
+    sitemapIndexUrl: `${SITE_ORIGIN}/sitemap.xml`,
+    sitemapPagesUrl: `${SITE_ORIGIN}/sitemap.xml`,
+    sitemapImagesUrl: `${SITE_ORIGIN}/sitemap-images.xml`,
     indexNowConfigured: Boolean(env.INDEXNOW_KEY),
     bingConfigured: Boolean(env.BING_WEBMASTER_API_KEY),
   });

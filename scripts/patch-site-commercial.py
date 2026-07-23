@@ -5,7 +5,11 @@ from __future__ import annotations
 import base64
 import json
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from terms_of_service import patch_terms_in_translations  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "dist" / "index.html"
@@ -871,6 +875,16 @@ const Header = () => {
 export default Header;
 '''
 
+TERMS_SRC = r'''import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useLanguage } from '@/LanguageContext';
+import { ArrowLeftIcon } from '@/constants';
+const Terms = () => {
+    const { t } = useLanguage();
+    return (_jsx("section", { id: "terms", className: "bg-slate-950 py-20 sm:py-28", children: _jsxs("div", { className: "max-w-4xl mx-auto px-4 sm:px-6 lg:px-8", children: [_jsxs("div", { className: "text-center", children: [_jsx("h1", { className: "text-4xl font-extrabold text-white sm:text-5xl", children: t.terms.title }), _jsxs("p", { className: "mt-4 text-lg text-slate-400", children: [t.terms.lastUpdated, ": ", new Date().toLocaleDateString()] })] }), _jsx("div", { className: "mt-12 text-base text-slate-400 space-y-8 bg-slate-900 p-8 sm:p-12 rounded-lg border border-slate-800", children: t.terms.sections.map((section, index) => (_jsxs("div", { className: "space-y-4", children: [_jsx("h2", { className: "text-2xl font-bold text-white", children: section.title }), _jsx("p", { children: section.content }), section.list && (_jsx("ul", { className: "list-disc list-inside space-y-2", children: section.list.map((item, itemIndex) => (_jsx("li", { children: item }, itemIndex))) }))] }, index))) }), _jsx("div", { className: "mt-12 text-center", children: _jsxs("a", { href: "#home", className: "inline-flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-white transition-colors", children: [_jsx(ArrowLeftIcon, { "aria-hidden": "true", className: "h-4 w-4" }), t.terms.backToHome] }) })] }) }));
+};
+export default Terms;
+'''
+
 
 def patch_app(src: str) -> str:
     if "Checkout" not in src:
@@ -940,7 +954,7 @@ def patch_translations(raw: str) -> str:
             pricing: "Pricing",
             faq: "FAQ",
             login: "Login",
-            signUp: "Sign Up with Google",
+            signUp: "Get Started",
             technical: "Technical",
         },""",
         """header: {
@@ -952,7 +966,7 @@ def patch_translations(raw: str) -> str:
             faq: "FAQ",
             contact: "Contact",
             login: "Login",
-            signUp: "Sign Up with Google",
+            signUp: "Get Started",
             technical: "Technical",
         },""",
         1,
@@ -965,7 +979,7 @@ def patch_translations(raw: str) -> str:
             pricing: "Tarifs",
             faq: "FAQ",
             login: "Connexion",
-            signUp: "S'inscrire avec Google",
+            signUp: "Commencer",
             technical: "Technique",
         },""",
         """header: {
@@ -977,7 +991,7 @@ def patch_translations(raw: str) -> str:
             faq: "FAQ",
             contact: "Contact",
             login: "Connexion",
-            signUp: "S'inscrire avec Google",
+            signUp: "Commencer",
             technical: "Technique",
         },""",
         1,
@@ -989,7 +1003,7 @@ def patch_translations(raw: str) -> str:
             pricing: "Precios",
             faq: "FAQ",
             login: "Iniciar Sesión",
-            signUp: "Registrarse con Google",
+            signUp: "Empezar",
             technical: "Técnico",
         },""",
         """header: {
@@ -1001,7 +1015,7 @@ def patch_translations(raw: str) -> str:
             faq: "FAQ",
             contact: "Contacto",
             login: "Iniciar Sesión",
-            signUp: "Registrarse con Google",
+            signUp: "Empezar",
             technical: "Técnico",
         },""",
         1,
@@ -1394,7 +1408,7 @@ def patch_translations(raw: str) -> str:
     raw = raw.replace(contact_fr_new, contact_fr_new + services_fr, 1)
     raw = raw.replace(contact_es_new, contact_es_new + services_es, 1)
 
-    return raw
+    return patch_terms_in_translations(raw)
 
 
 def patch_language_context(src: str) -> str:
@@ -1428,6 +1442,7 @@ def main() -> None:
     set_("@/components/About", ABOUT_SRC)
     set_("@/components/Footer", FOOTER_SRC)
     set_("@/components/Header", HEADER_SRC)
+    set_("@/components/Terms", TERMS_SRC)
     set_("@/App", patch_app(get("@/App")))
     set_("@/seo", patch_seo(get("@/seo")))
     set_("@/translations", patch_translations(get("@/translations")))

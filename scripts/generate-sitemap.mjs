@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Regenerates dist/sitemap.xml + IndexNow key file from functions/seo-config.js
- * and writes functions/_sitemap-meta.js with the deploy lastmod.
+ * Regenerates static dist/sitemap.xml (Google Search Console), snapshots,
+ * IndexNow key file, robots.txt, and _sitemap-meta.js from seo-config.js.
  */
 import { createHash, randomBytes } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -31,23 +31,20 @@ const seoMod = await import(pathToFileURL(join(ROOT, "functions/seo-config.js"))
 const libMod = await import(pathToFileURL(join(ROOT, "functions/sitemap-lib.js")).href);
 
 const lastmod = process.env.SITEMAP_LASTMOD || new Date().toISOString().slice(0, 10);
-const xml = libMod.buildSitemapXml(lastmod);
+const pagesXml = libMod.buildPagesSitemapXml(lastmod);
+const imagesXml = libMod.buildImagesSitemapXml(lastmod);
 const entries = libMod.listSitemapEntries(lastmod);
 const fingerprint = createHash("sha256")
   .update(entries.map((e) => e.loc).join("\n") + "\n" + lastmod)
   .digest("hex");
 
-writeFileSync(join(ROOT, "config", "sitemap.generated.xml"), xml, "utf8");
-writeFileSync(join(DIST, `${indexNowKey}.txt`), `${indexNowKey}\n`, "utf8");
+// Static files — served directly by Cloudflare Pages (most reliable for Googlebot).
+writeFileSync(join(DIST, "sitemap.xml"), pagesXml, "utf8");
+writeFileSync(join(DIST, "sitemap-images.xml"), imagesXml, "utf8");
 
-// Prefer the Pages Function at /sitemap.xml over a static file (Functions can lose to
-// static assets depending on deploy ordering). Remove any stale static copy.
-try {
-  const { unlinkSync } = await import("node:fs");
-  unlinkSync(join(DIST, "sitemap.xml"));
-} catch {
-  /* no static sitemap — good */
-}
+writeFileSync(join(CONFIG_DIR, "sitemap.generated.xml"), pagesXml, "utf8");
+writeFileSync(join(CONFIG_DIR, "sitemap-images.generated.xml"), imagesXml, "utf8");
+writeFileSync(join(DIST, `${indexNowKey}.txt`), `${indexNowKey}\n`, "utf8");
 
 writeFileSync(
   join(ROOT, "functions/_sitemap-meta.js"),
@@ -56,22 +53,29 @@ export const SITEMAP_LASTMOD = ${JSON.stringify(lastmod)};
 export const SITEMAP_FINGERPRINT = ${JSON.stringify(fingerprint)};
 export const INDEXNOW_KEY_PUBLIC = ${JSON.stringify(indexNowKey)};
 export const SITEMAP_URL_COUNT = ${entries.length};
+export const SITEMAP_INDEX_URL = ${JSON.stringify(`${seoMod.SITE_ORIGIN}/sitemap.xml`)};
+export const SITEMAP_PAGES_URL = ${JSON.stringify(`${seoMod.SITE_ORIGIN}/sitemap.xml`)};
+export const SITEMAP_IMAGES_URL = ${JSON.stringify(`${seoMod.SITE_ORIGIN}/sitemap-images.xml`)};
 `,
   "utf8",
 );
 
-// Keep robots.txt pointing at the live sitemap.
 writeFileSync(
   join(DIST, "robots.txt"),
-  `User-agent: *
+  `# https://billmaniac.win robots.txt
+User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /cdn-cgi/
 
-# Primary sitemap for Cloudflare Pages
+# Submit in Google Search Console: ${seoMod.SITE_ORIGIN}/sitemap.xml
 Sitemap: ${seoMod.SITE_ORIGIN}/sitemap.xml
 `,
   "utf8",
 );
 
-console.log(`sitemap.xml → ${entries.length} URLs, lastmod=${lastmod}`);
+console.log(`Static sitemap → dist/sitemap.xml (${entries.length} URLs, lastmod=${lastmod})`);
+console.log(`Static image sitemap → dist/sitemap-images.xml`);
+console.log(`Submit in GSC: ${seoMod.SITE_ORIGIN}/sitemap.xml`);
 console.log(`IndexNow key file → dist/${indexNowKey}.txt`);
 console.log(`fingerprint=${fingerprint.slice(0, 12)}…`);

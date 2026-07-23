@@ -1,5 +1,8 @@
+# https://billmaniac.win robots.txt
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /cdn-cgi/
 
-# Primary sitemap for Cloudflare Pages
+# Submit in Google Search Console: https://billmaniac.win/sitemap.xml
 Sitemap: https://billmaniac.win/sitemap.xml

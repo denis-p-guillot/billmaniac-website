@@ -1,4 +1,4 @@
-import { SEO_PAGES, SITE_ORIGIN } from "./seo-config.js";
+import { SITE_ORIGIN, listIndexablePages } from "./seo-config.js";
 
 /** @param {string} [isoDate] YYYY-MM-DD */
 export function todayYmd(isoDate) {
@@ -8,7 +8,7 @@ export function todayYmd(isoDate) {
 
 export function listSitemapEntries(lastmod) {
   const mod = todayYmd(lastmod);
-  return Object.values(SEO_PAGES)
+  return listIndexablePages()
     .slice()
     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0) || a.path.localeCompare(b.path))
     .map((page) => ({
@@ -16,27 +16,96 @@ export function listSitemapEntries(lastmod) {
       lastmod: mod,
       changefreq: page.changefreq || "monthly",
       priority: typeof page.priority === "number" ? page.priority : 0.5,
+      images: page.images || [],
     }));
 }
 
-export function buildSitemapXml(lastmod) {
+export function buildPagesSitemapXml(lastmod) {
   const entries = listSitemapEntries(lastmod);
   const body = entries
-    .map(
-      (e) => `  <url>
+    .map((e) => {
+      const imageTags = (e.images || [])
+        .map(
+          (imageUrl) => `    <image:image>
+      <image:loc>${escapeXml(imageUrl)}</image:loc>
+    </image:image>`,
+        )
+        .join("\n");
+
+      return `  <url>
     <loc>${escapeXml(e.loc)}</loc>
     <lastmod>${e.lastmod}</lastmod>
     <changefreq>${e.changefreq}</changefreq>
-    <priority>${e.priority.toFixed(1)}</priority>
-  </url>`,
+    <priority>${e.priority.toFixed(1)}</priority>${imageTags ? `\n${imageTags}` : ""}
+  </url>`;
+    })
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${body}
+</urlset>
+`;
+}
+
+export function buildImagesSitemapXml(lastmod) {
+  const mod = todayYmd(lastmod);
+  const pages = listIndexablePages().filter((page) => (page.images || []).length > 0);
+
+  const body = pages
+    .map((page) => {
+      const pageUrl = page.path === "/" ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${page.path}`;
+      const imageTags = (page.images || [])
+        .map(
+          (imageUrl) => `    <image:image>
+      <image:loc>${escapeXml(imageUrl)}</image:loc>
+    </image:image>`,
+        )
+        .join("\n");
+
+      return `  <url>
+    <loc>${escapeXml(pageUrl)}</loc>
+    <lastmod>${mod}</lastmod>
+${imageTags}
+  </url>`;
+    })
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${body}
+</urlset>
+`;
+}
+
+export function buildSitemapIndexXml(lastmod) {
+  const mod = todayYmd(lastmod);
+  const sitemaps = [
+    { loc: `${SITE_ORIGIN}/sitemap-pages.xml`, lastmod: mod },
+    { loc: `${SITE_ORIGIN}/sitemap-images.xml`, lastmod: mod },
+  ];
+
+  const body = sitemaps
+    .map(
+      (entry) => `  <sitemap>
+    <loc>${escapeXml(entry.loc)}</loc>
+    <lastmod>${entry.lastmod}</lastmod>
+  </sitemap>`,
     )
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${body}
-</urlset>
+</sitemapindex>
 `;
+}
+
+/** Back-compat alias used by notify API previews. */
+export function buildSitemapXml(lastmod) {
+  return buildSitemapIndexXml(lastmod);
 }
 
 function escapeXml(value) {
@@ -45,6 +114,14 @@ function escapeXml(value) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+export function sitemapResponseHeaders(label) {
+  return {
+    "content-type": "application/xml; charset=utf-8",
+    "cache-control": "public, max-age=3600, must-revalidate",
+    "x-billmaniac-sitemap": label,
+  };
 }
 
 /**
@@ -70,7 +147,6 @@ export async function submitIndexNow({ host, key, keyLocation, urlList, fetchImp
     body: JSON.stringify(payload),
   });
   const text = await res.text();
-  // 200/202 = accepted; 429 = rate limited (often from prior CF Crawler Hints traffic)
   const ok = res.status === 200 || res.status === 202 || res.status === 429;
   return {
     ok,
@@ -81,10 +157,6 @@ export async function submitIndexNow({ host, key, keyLocation, urlList, fetchImp
   };
 }
 
-/**
- * Ask Bing Webmaster to (re)fetch a sitemap feed.
- * Requires a Bing Webmaster API key for the site.
- */
 export async function submitBingSitemapFeed({
   apiKey,
   siteUrl = SITE_ORIGIN,
@@ -107,11 +179,6 @@ export async function submitBingSitemapFeed({
   };
 }
 
-/**
- * Optional Google Search Console sitemap notify via Indexing-style ping.
- * Google deprecated anonymous ping; this records the attempt and no-ops unless
- * GOOGLE_SITEMAP_PING_URL is explicitly configured (custom proxy / automation).
- */
 export async function submitGoogleSitemapPing({
   feedUrl = `${SITE_ORIGIN}/sitemap.xml`,
   pingUrl,
@@ -121,7 +188,8 @@ export async function submitGoogleSitemapPing({
     return {
       ok: true,
       skipped: true,
-      reason: "Google anonymous sitemap ping is deprecated; set GOOGLE_SITEMAP_PING_URL to enable a custom notifier",
+      reason:
+        "Google anonymous sitemap ping is deprecated; submit https://billmaniac.win/sitemap.xml manually in Google Search Console",
     };
   }
   const url = pingUrl.includes("{sitemap}")
@@ -167,6 +235,8 @@ export async function notifySearchEngines(env, { lastmod } = {}) {
     ok: Boolean(indexNowAccepted) && Boolean(bing.ok || bing.skipped),
     fingerprint,
     sitemapUrl,
+    sitemapPagesUrl: `${SITE_ORIGIN}/sitemap.xml`,
+    sitemapImagesUrl: `${SITE_ORIGIN}/sitemap-images.xml`,
     urlCount: urlList.length,
     lastmod: entries[0]?.lastmod,
     indexNow,
