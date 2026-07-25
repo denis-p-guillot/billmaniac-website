@@ -178,7 +178,7 @@ const ADDRESS = "Menara Ravindo, Lantai 12, Jl. Kebon Sirih Kav. 75, Jakarta, In
 
 const PLAN_META = {
   free: { id: "free", priceEn: "$0 / forever", priceFr: "0€ / pour toujours", priceEs: "0€ / para siempre" },
-  pro: { id: "pro", priceEn: "$12 / year", priceFr: "12€ / an", priceEs: "12€ / año" },
+  pro: { id: "pro", priceEn: "$18 / year", priceFr: "18€ / an", priceEs: "18€ / año" },
   maniac: { id: "maniac", priceEn: "$60 / year", priceFr: "60€ / an", priceEs: "60€ / año" },
 };
 
@@ -1144,6 +1144,25 @@ def patch_pricing_plan_limits(raw: str) -> str:
     return raw
 
 
+def patch_pro_annual_price(raw: str) -> str:
+    """Set Pro plan display price to $18/year (and 18€ in FR/ES)."""
+    replacements = [
+        ('"name": "PRO MODE",\n                    "price": "$12"', '"name": "PRO MODE",\n                    "price": "$18"'),
+        ('"name": "MODE PRO",\n                    "price": "12€"', '"name": "MODE PRO",\n                    "price": "18€"'),
+        ('"name": "MODE PRO",\n                    "price": "$12"', '"name": "MODE PRO",\n                    "price": "$18"'),
+        ('"name": "MODO PRO",\n                    "price": "12€"', '"name": "MODO PRO",\n                    "price": "18€"'),
+        ('planPro: "PRO MODE — $12/year"', 'planPro: "PRO MODE — $18/year"'),
+        ('planPro: "MODE PRO — 12€/an"', 'planPro: "MODE PRO — 18€/an"'),
+        ('planPro: "MODO PRO — 12€/año"', 'planPro: "MODO PRO — 18€/año"'),
+    ]
+    for old, new in replacements:
+        if old in raw:
+            raw = raw.replace(old, new, 1)
+    if '"price": "$12"' in raw and '"name": "PRO MODE"' in raw:
+        raise SystemExit("Pro price patch incomplete: $12 still present for PRO MODE")
+    return raw
+
+
 def patch_translations(raw: str) -> str:
     # header keys
     raw = raw.replace(
@@ -1487,7 +1506,7 @@ def patch_translations(raw: str) -> str:
             intro: "Choose your plan and send a yearly subscription request. We confirm payment details by WhatsApp or email, then activate your account.",
             selectPlan: "Select a plan",
             planFree: "FREE",
-            planPro: "PRO MODE — $12/year",
+            planPro: "PRO MODE — $18/year",
             planManiac: "MANIAC MODE — $60/year",
             fieldPlan: "Plan",
             fieldName: "Full name",
@@ -1532,7 +1551,7 @@ def patch_translations(raw: str) -> str:
             intro: "Choisissez votre offre et envoyez une demande d'abonnement annuel. Nous confirmons le paiement par WhatsApp ou e-mail, puis activons votre compte.",
             selectPlan: "Choisir une offre",
             planFree: "GRATUIT",
-            planPro: "MODE PRO — 12€/an",
+            planPro: "MODE PRO — 18€/an",
             planManiac: "MODE MANIAC — 60€/an",
             fieldPlan: "Offre",
             fieldName: "Nom complet",
@@ -1577,7 +1596,7 @@ def patch_translations(raw: str) -> str:
             intro: "Elige tu plan y envía una solicitud de suscripción anual. Confirmamos el pago por WhatsApp o correo y luego activamos tu cuenta.",
             selectPlan: "Selecciona un plan",
             planFree: "GRATIS",
-            planPro: "MODO PRO — 12€/año",
+            planPro: "MODO PRO — 18€/año",
             planManiac: "MODO MANIAC — 60€/año",
             fieldPlan: "Plan",
             fieldName: "Nombre completo",
@@ -1608,6 +1627,7 @@ def patch_translations(raw: str) -> str:
     raw = raw.replace(contact_es_new, contact_es_new + services_es, 1)
 
     raw = patch_pricing_plan_limits(raw)
+    raw = patch_pro_annual_price(raw)
     return patch_terms_in_translations(raw)
 
 

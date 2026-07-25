@@ -128,11 +128,11 @@ function softwareApplicationNode() {
         {
           "@type": "Offer",
           name: "PRO MODE",
-          price: "12",
+          price: "18",
           priceCurrency: "USD",
           priceSpecification: {
             "@type": "PriceSpecification",
-            price: "12",
+            price: "18",
             priceCurrency: "USD",
             unitText: "YEAR",
           },
