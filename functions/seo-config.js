@@ -148,6 +148,16 @@ export const SEO_PAGES = {
     pageKey: "privacy",
     images: [DEFAULT_OG_IMAGE],
   },
+  "/data-deletion": {
+    title: "Data Deletion Request — Bill Maniac",
+    description:
+      "Request deletion of your Bill Maniac account and data via the app or by email.",
+    path: "/data-deletion",
+    priority: 0.5,
+    changefreq: "yearly",
+    pageKey: "dataDeletion",
+    images: [DEFAULT_OG_IMAGE],
+  },
   "/terms": {
     title: "Terms of Service — Bill Maniac",
     description: "Terms governing use of the Bill Maniac web app, Android app, and related services.",

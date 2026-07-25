@@ -98,6 +98,15 @@
     </image:image>
   </url>
   <url>
+    <loc>https://billmaniac.win/data-deletion</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+    <image:image>
+      <image:loc>https://billmaniac.win/pics/og-billmaniac.svg</image:loc>
+    </image:image>
+  </url>
+  <url>
     <loc>https://billmaniac.win/privacy</loc>
     <lastmod>2026-07-25</lastmod>
     <changefreq>yearly</changefreq>
