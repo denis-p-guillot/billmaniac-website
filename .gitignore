@@ -10,3 +10,4 @@ config/sitemap-submit.state.json
 **/.wrangler/
 **/node_modules/
 dist/downloads/*.apk
+**/__pycache__/
