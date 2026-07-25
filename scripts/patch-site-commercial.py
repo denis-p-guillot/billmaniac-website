@@ -945,6 +945,205 @@ def replace_contact_block(raw: str, old: str, new: str) -> str:
     return raw.replace(old, new, 1)
 
 
+def patch_pricing_plan_limits(raw: str) -> str:
+    """Align FREE/PRO scan limits and FREE feature lists across locales."""
+    replacements = [
+        # English — pricing page tiers
+        (
+            """                    "features": [
+                        {
+                            "text": "Unlimited Manual Expenses"
+                        },
+                        {
+                            "text": "Secure cloud sync"
+                        },
+                        {
+                            "text": "30 AI Receipt Scans / month"
+                        },
+                        {
+                            "text": "Basic Categorization"
+                        },
+                        {
+                            "text": "Private receipt cloud storage"
+                        },
+                        {
+                            "text": "Private expense database"
+                        }
+                    ],""",
+            """                    "features": [
+                        {
+                            "text": "Secure cloud sync"
+                        },
+                        {
+                            "text": "20 AI Receipt Scans / month"
+                        },
+                        {
+                            "text": "Basic Categorization"
+                        },
+                        {
+                            "text": "Private receipt cloud storage"
+                        }
+                    ],""",
+        ),
+        ('"text": "120 AI Receipt Scans / month"', '"text": "80 AI Receipt Scans / month"'),
+        # English — homepage product cards
+        (
+            """                    "features": [
+                        "Unlimited manual expenses",
+                        "Secure cloud sync",
+                        "30 AI receipt scans / month",
+                        "Private receipt storage"
+                    ]""",
+            """                    "features": [
+                        "Secure cloud sync",
+                        "20 AI receipt scans / month",
+                        "Basic categorization",
+                        "Private receipt cloud storage"
+                    ]""",
+        ),
+        ('"120 AI receipt scans / month"', '"80 AI receipt scans / month"'),
+        # French — pricing page tiers
+        (
+            """                    "features": [
+                        {
+                            "text": "Dépenses manuelles illimitées"
+                        },
+                        {
+                            "text": "Synchronisation cloud sécurisée"
+                        },
+                        {
+                            "text": "30 numérisations de reçus IA / mois"
+                        },
+                        {
+                            "text": "Catégorisation de base"
+                        },
+                        {
+                            "text": "Stockage cloud privé des reçus"
+                        },
+                        {
+                            "text": "Base de données privée des dépenses"
+                        }
+                    ],""",
+            """                    "features": [
+                        {
+                            "text": "Synchronisation cloud sécurisée"
+                        },
+                        {
+                            "text": "20 numérisations de reçus IA / mois"
+                        },
+                        {
+                            "text": "Catégorisation de base"
+                        },
+                        {
+                            "text": "Stockage cloud privé des reçus"
+                        }
+                    ],""",
+        ),
+        (
+            '"text": "120 numérisations de reçus IA / mois"',
+            '"text": "80 numérisations de reçus IA / mois"',
+        ),
+        # French — homepage product cards
+        (
+            """                    "features": [
+                        "Dépenses manuelles illimitées",
+                        "Sync cloud sécurisée",
+                        "30 scans IA / mois",
+                        "Stockage privé des reçus"
+                    ]""",
+            """                    "features": [
+                        "Sync cloud sécurisée",
+                        "20 scans IA / mois",
+                        "Catégorisation de base",
+                        "Stockage cloud privé des reçus"
+                    ]""",
+        ),
+        ('"120 scans IA / mois"', '"80 scans IA / mois"'),
+        # Spanish — pricing page tiers
+        (
+            """                    "features": [
+                        {
+                            "text": "Gastos manuales ilimitados"
+                        },
+                        {
+                            "text": "Sincronización segura en la nube"
+                        },
+                        {
+                            "text": "30 escaneos de recibos con IA / mes"
+                        },
+                        {
+                            "text": "Categorización básica"
+                        },
+                        {
+                            "text": "Uso de almacenamiento privado de recibos"
+                        },
+                        {
+                            "text": "Base de datos privada de gastos"
+                        }
+                    ],""",
+            """                    "features": [
+                        {
+                            "text": "Sincronización segura en la nube"
+                        },
+                        {
+                            "text": "20 escaneos de recibos con IA / mes"
+                        },
+                        {
+                            "text": "Categorización básica"
+                        },
+                        {
+                            "text": "Uso de almacenamiento privado de recibos"
+                        }
+                    ],""",
+        ),
+        (
+            '"text": "120 escaneos de recibos con IA / mes"',
+            '"text": "80 escaneos de recibos con IA / mes"',
+        ),
+        # Spanish — homepage product cards
+        (
+            """                    "features": [
+                        "Gastos manuales ilimitados",
+                        "Sincronización cloud segura",
+                        "30 escaneos IA / mes",
+                        "Almacenamiento privado de recibos"
+                    ]""",
+            """                    "features": [
+                        "Sincronización cloud segura",
+                        "20 escaneos IA / mes",
+                        "Categorización básica",
+                        "Almacenamiento privado de recibos"
+                    ]""",
+        ),
+        ('"120 escaneos IA / mes"', '"80 escaneos IA / mes"'),
+        # Indonesian — homepage product cards
+        (
+            """                    "features": [
+                        "Pengeluaran manual tidak terbatas",
+                        "Sinkronisasi cloud yang aman",
+                        "30 pemindaian struk AI / bulan",
+                        "Penyimpanan struk pribadi"
+                    ]""",
+            """                    "features": [
+                        "Sinkronisasi cloud yang aman",
+                        "20 pemindaian struk AI / bulan",
+                        "Kategorisasi dasar",
+                        "Penyimpanan struk cloud pribadi"
+                    ]""",
+        ),
+        ('"120 pemindaian struk AI / bulan"', '"80 pemindaian struk AI / bulan"'),
+        # Services page bullets (all locales in this patch file)
+        ('"120 scans/month on Pro"', '"80 scans/month on Pro"'),
+        ('"120 scans/mois en Pro"', '"80 scans/mois en Pro"'),
+        ('"120 escaneos/mes en Pro"', '"80 escaneos/mes en Pro"'),
+    ]
+    for old, new in replacements:
+        if old not in raw:
+            raise SystemExit(f"pricing plan patch target not found:\n{old[:120]}...")
+        raw = raw.replace(old, new, 1)
+    return raw
+
+
 def patch_translations(raw: str) -> str:
     # header keys
     raw = raw.replace(
@@ -1273,7 +1472,7 @@ def patch_translations(raw: str) -> str:
             title: "What Bill Maniac offers",
             intro: "AI expense management for freelancers, finance teams, and companies — with private cloud storage on Cloudflare.",
             items: [
-                { title: "AI Receipt Scanning", text: "Capture or upload JPG/PNG/PDF receipts on web and Android. Gemini extracts vendor, date, totals, and category.", bullets: ["Camera & batch upload", "120 scans/month on Pro", "500 scans/month on Maniac"] },
+                { title: "AI Receipt Scanning", text: "Capture or upload JPG/PNG/PDF receipts on web and Android. Gemini extracts vendor, date, totals, and category.", bullets: ["Camera & batch upload", "80 scans/month on Pro", "500 scans/month on Maniac"] },
                 { title: "Private Cloud Expense Database", text: "Your bills and receipt files stay in your Bill Maniac Pro cloud (Cloudflare D1 + R2), not a shared public drive.", bullets: ["Encrypted-in-transit access", "Per-account isolation", "PIN lock on clients"] },
                 { title: "Analytics & Budgets", text: "Track spending by period, category, and vendor. Set budgets and spot trends early.", bullets: ["Weekly / 15-day / monthly views", "Category breakdowns", "Vendor rankings"] },
                 { title: "Exports & Reporting", text: "Download CSV or polished Excel reports, and printable monthly documents for accounting.", bullets: ["CSV & XLSX export", "Monthly reports", "Receipt image links in spreadsheets"] },
@@ -1318,7 +1517,7 @@ def patch_translations(raw: str) -> str:
             title: "Ce que propose Bill Maniac",
             intro: "Gestion des dépenses par IA pour indépendants, équipes finance et entreprises — avec stockage cloud privé sur Cloudflare.",
             items: [
-                { title: "Scan de reçus par IA", text: "Capturez ou téléversez des reçus JPG/PNG/PDF sur le web et Android. Gemini extrait commerçant, date, totaux et catégorie.", bullets: ["Caméra & lots", "120 scans/mois en Pro", "500 scans/mois en Maniac"] },
+                { title: "Scan de reçus par IA", text: "Capturez ou téléversez des reçus JPG/PNG/PDF sur le web et Android. Gemini extrait commerçant, date, totaux et catégorie.", bullets: ["Caméra & lots", "80 scans/mois en Pro", "500 scans/mois en Maniac"] },
                 { title: "Base de dépenses cloud privée", text: "Vos factures et fichiers restent dans votre cloud Bill Maniac Pro (Cloudflare D1 + R2).", bullets: ["Accès chiffré en transit", "Isolation par compte", "Verrouillage PIN"] },
                 { title: "Analytique & budgets", text: "Suivez les dépenses par période, catégorie et fournisseur.", bullets: ["Vues hebdo / 15 jours / mois", "Répartition par catégorie", "Classement des fournisseurs"] },
                 { title: "Exports & rapports", text: "CSV, Excel et rapports mensuels pour la comptabilité.", bullets: ["Export CSV & XLSX", "Rapports mensuels", "Liens d'images de reçus"] },
@@ -1363,7 +1562,7 @@ def patch_translations(raw: str) -> str:
             title: "Qué ofrece Bill Maniac",
             intro: "Gestión de gastos con IA para freelancers, equipos financieros y empresas — con almacenamiento cloud privado en Cloudflare.",
             items: [
-                { title: "Escaneo de recibos con IA", text: "Captura o sube recibos JPG/PNG/PDF en web y Android. Gemini extrae comercio, fecha, totales y categoría.", bullets: ["Cámara y lotes", "120 escaneos/mes en Pro", "500 escaneos/mes en Maniac"] },
+                { title: "Escaneo de recibos con IA", text: "Captura o sube recibos JPG/PNG/PDF en web y Android. Gemini extrae comercio, fecha, totales y categoría.", bullets: ["Cámara y lotes", "80 escaneos/mes en Pro", "500 escaneos/mes en Maniac"] },
                 { title: "Base de gastos en cloud privado", text: "Tus facturas y archivos permanecen en tu cloud Bill Maniac Pro (Cloudflare D1 + R2).", bullets: ["Acceso cifrado en tránsito", "Aislamiento por cuenta", "Bloqueo PIN"] },
                 { title: "Analítica y presupuestos", text: "Controla el gasto por periodo, categoría y proveedor.", bullets: ["Vistas semanal / 15 días / mes", "Desglose por categoría", "Ranking de proveedores"] },
                 { title: "Exportaciones e informes", text: "CSV, Excel e informes mensuales para contabilidad.", bullets: ["Exportación CSV y XLSX", "Informes mensuales", "Enlaces a imágenes de recibos"] },
@@ -1408,6 +1607,7 @@ def patch_translations(raw: str) -> str:
     raw = raw.replace(contact_fr_new, contact_fr_new + services_fr, 1)
     raw = raw.replace(contact_es_new, contact_es_new + services_es, 1)
 
+    raw = patch_pricing_plan_limits(raw)
     return patch_terms_in_translations(raw)
 
 
