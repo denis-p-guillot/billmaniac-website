@@ -6,6 +6,9 @@
     "sitemap:generate": "node scripts/generate-sitemap.mjs",
     "sitemap:submit": "node scripts/submit-sitemap.mjs",
     "sitemap:submit:api": "node scripts/submit-sitemap.mjs --via-api --force",
+    "apk:copy": "node scripts/copy-android-apk.mjs",
+    "apk:upload": "node scripts/copy-android-apk.mjs",
+    "android:patch": "python3 scripts/patch-android-download.py",
     "deploy": "node scripts/deploy.mjs",
     "deploy:pages": "CLOUDFLARE_ACCOUNT_ID=9345927ca3f495f89fdaddea61a5e3f9 wrangler pages deploy dist --project-name=billmaniac-website --commit-dirty=true"
   }

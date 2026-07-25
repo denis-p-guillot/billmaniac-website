@@ -44,6 +44,9 @@ function loadEnvFile() {
 
 loadEnvFile();
 
+run(process.execPath, [join(ROOT, "scripts/copy-android-apk.mjs")]);
+run("python3", [join(ROOT, "scripts/patch-android-download.py")]);
+
 run(process.execPath, [join(ROOT, "scripts/generate-sitemap.mjs")]);
 
 run("npx", [

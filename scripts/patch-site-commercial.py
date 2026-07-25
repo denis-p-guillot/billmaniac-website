@@ -778,6 +778,14 @@ if (typeof window !== "undefined" && !window.__billmaniacFooterNav) {
     if (!a) return;
     const href = a.getAttribute("href");
     if (!href || href.startsWith("//") || href.includes("://")) return;
+    if (
+      a.hasAttribute("download") ||
+      href.startsWith("/downloads/") ||
+      /^\\/downloads\\//.test(href) ||
+      /\\.(apk|aab|zip|pdf)$/i.test(href)
+    ) {
+      return;
+    }
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
     event.preventDefault();
     navigateToPath(href.split("?")[0]);

@@ -9,7 +9,7 @@ import {
 import { SITE_LANGUAGES, buildStructuredData } from "./seo-schema.js";
 
 const ASSET_EXT =
-  /\.(xml|txt|json|js|mjs|cjs|ts|tsx|jsx|css|png|jpe?g|gif|webp|svg|ico|woff2?|map|webmanifest)$/i;
+  /\.(xml|txt|json|js|mjs|cjs|ts|tsx|jsx|css|png|jpe?g|gif|webp|svg|ico|woff2?|map|webmanifest|apk|aab)$/i;
 
 const SITEMAP_PATHS = new Set([
   "/sitemap.xml",

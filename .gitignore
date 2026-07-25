@@ -9,3 +9,4 @@ config/sitemap-submit.state.json
 .wrangler/
 **/.wrangler/
 **/node_modules/
+dist/downloads/*.apk

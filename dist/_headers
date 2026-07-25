@@ -25,6 +25,12 @@
 /pics/hero-track-expenses.jpg
   Cache-Control: public, max-age=86400, must-revalidate
 
+# Android APK direct download (/android page)
+/downloads/*
+  Content-Type: application/vnd.android.package-archive
+  Content-Disposition: attachment; filename="billmaniac-pro.apk"
+  Cache-Control: public, max-age=3600, must-revalidate
+
 # IndexNow ownership key files
 /*.txt
   Content-Type: text/plain; charset=utf-8
