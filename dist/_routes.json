@@ -6,7 +6,6 @@
     "/robots.txt",
     "/manifest.json",
     "/metadata.json",
-    "/sitemap-images.xml",
     "/*.txt",
     "/_headers",
     "/_redirects"

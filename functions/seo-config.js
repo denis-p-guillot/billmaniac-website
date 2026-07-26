@@ -3,7 +3,7 @@ export const SITE_ORIGIN = "https://billmaniac.win";
 export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/pics/og-billmaniac.svg`;
 /** Raster OG image for image sitemaps (Google does not index SVG in image sitemaps). */
 export const SITEMAP_OG_IMAGE = `${SITE_ORIGIN}/pics/og-cover.jpg`;
-export const SITEMAP_PAGES_FILE = "sitemap1.xml";
+export const SITEMAP_PAGES_FILE = "sitemap.xml";
 export const SITEMAP_PAGES_PATH = `/${SITEMAP_PAGES_FILE}`;
 export const SITEMAP_PAGES_URL = `${SITE_ORIGIN}${SITEMAP_PAGES_PATH}`;
 export const SITEMAP_IMAGES_FILE = "sitemap-images.xml";

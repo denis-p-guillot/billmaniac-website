@@ -2,18 +2,26 @@ import {
   DEFAULT_OG_IMAGE,
   SITE_ORIGIN,
   SEO_PAGES,
+  SITEMAP_IMAGES_FILE,
+  SITEMAP_PAGES_PATH,
   getSeoForPath,
   isIndexablePath,
   normalizePath,
 } from "./seo-config.js";
 import { SITE_LANGUAGES, buildStructuredData } from "./seo-schema.js";
+import {
+  buildImagesSitemapXml,
+  buildPagesSitemapXml,
+  sitemapResponseHeaders,
+} from "./sitemap-lib.js";
+import { SITEMAP_LASTMOD as META_LASTMOD } from "./_sitemap-meta.js";
 
 const ASSET_EXT =
   /\.(xml|txt|json|js|mjs|cjs|ts|tsx|jsx|css|png|jpe?g|gif|webp|svg|ico|woff2?|map|webmanifest|apk|aab)$/i;
 
 const SITEMAP_PATHS = new Set([
-  "/sitemap1.xml",
-  "/sitemap-images.xml",
+  SITEMAP_PAGES_PATH,
+  `/${SITEMAP_IMAGES_FILE}`,
 ]);
 
 function upsertMetaByName(html, name, content) {
@@ -170,9 +178,25 @@ async function loadIndexHtml(context) {
 }
 
 export async function onRequest(context) {
-  const { request, next } = context;
+  const { request, env, next } = context;
   const url = new URL(request.url);
   const path = normalizePath(url.pathname);
+  const lastmod =
+    env?.SITEMAP_LASTMOD || META_LASTMOD || new Date().toISOString().slice(0, 10);
+
+  if (path === SITEMAP_PAGES_PATH) {
+    return new Response(buildPagesSitemapXml(lastmod), {
+      status: 200,
+      headers: sitemapResponseHeaders("pages"),
+    });
+  }
+
+  if (path === `/${SITEMAP_IMAGES_FILE}`) {
+    return new Response(buildImagesSitemapXml(lastmod), {
+      status: 200,
+      headers: sitemapResponseHeaders("images"),
+    });
+  }
 
   if (path === "/index.tsx" || path === "/index.ts" || path === "/main.tsx") {
     return new Response("/* legacy entry disabled; use importmap @/index */\n", {

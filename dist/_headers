@@ -4,22 +4,16 @@
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: SAMEORIGIN
 
-# Sitemap feeds (Cloudflare Pages Functions)
-/sitemap1.xml
-  Content-Type: text/xml; charset=utf-8
-  Cache-Control: public, max-age=3600, must-revalidate
-
-/sitemap-1.xml
-  Content-Type: text/xml; charset=utf-8
-  Cache-Control: public, max-age=3600, must-revalidate
-
+# Sitemap feeds (also served by functions/_middleware.js)
 /sitemap.xml
-  Content-Type: application/xml; charset=utf-8
-  Cache-Control: public, max-age=3600, must-revalidate
+  Content-Type: application/xml; charset=UTF-8
+  Cache-Control: no-store, must-revalidate
+  CDN-Cache-Control: no-store
 
 /sitemap-images.xml
-  Content-Type: text/xml; charset=utf-8
-  Cache-Control: public, max-age=3600, must-revalidate
+  Content-Type: application/xml; charset=UTF-8
+  Cache-Control: no-store, must-revalidate
+  CDN-Cache-Control: no-store
 
 /robots.txt
   Content-Type: text/plain; charset=utf-8
