@@ -7,7 +7,8 @@ Marketing site for **[billmaniac.win](https://billmaniac.win)** on Cloudflare Pa
 | Piece | Role |
 |-------|------|
 | `functions/seo-config.js` | Source of truth for pages + meta |
-| `functions/sitemap-1.xml.js` | **Dynamic** `/sitemap-1.xml` (auto-updates from SEO config) |
+| `functions/sitemap1.xml.js` | **Dynamic** `/sitemap1.xml` with explicit `text/xml` headers for GSC |
+| `dist/sitemap1.xml` | Static snapshot generated on deploy |
 | `functions/api/sitemap-notify.js` | Authenticated endpoint to push URLs to search engines |
 | `dist/robots.txt` | Points crawlers at the sitemap |
 | `dist/{INDEXNOW_KEY}.txt` | IndexNow ownership proof |
@@ -22,7 +23,7 @@ Marketing site for **[billmaniac.win](https://billmaniac.win)** on Cloudflare Pa
 npm run sitemap:generate
 ```
 
-Writes `dist/sitemap-1.xml`, the IndexNow key file, and `functions/_sitemap-meta.js`.
+Writes `dist/sitemap1.xml`, the IndexNow key file, and `functions/_sitemap-meta.js`.
 
 ### 2. Submit to sitemap / IndexNow APIs
 
@@ -77,7 +78,7 @@ curl -X POST https://billmaniac.win/api/sitemap-notify \
   -d '{"force":true}'
 ```
 
-Add pages to `functions/seo-config.js` → run `npm run deploy` (or generate + submit). The live `/sitemap-1.xml` always mirrors the config.
+Add pages to `functions/seo-config.js` → run `npm run deploy` (or generate + submit). The live `/sitemap1.xml` always mirrors the config.
 
 ## Deploy (Pages only)
 

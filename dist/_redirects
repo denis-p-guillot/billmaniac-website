@@ -1,5 +1,6 @@
-# Legacy sitemap URL → current feed
-/sitemap.xml /sitemap-1.xml 301
+# Legacy sitemap URLs → current feed (GSC does not follow redirects on submitted URLs)
+/sitemap.xml /sitemap1.xml 301
+/sitemap-1.xml /sitemap1.xml 301
 
 # Cloudflare Pages — clean URL SPA fallback (backup to functions middleware)
 /features    /index.html  200

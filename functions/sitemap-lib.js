@@ -120,7 +120,7 @@ function escapeXml(value) {
 
 export function sitemapResponseHeaders(label) {
   return {
-    "content-type": "application/xml; charset=utf-8",
+    "content-type": "text/xml; charset=utf-8",
     "cache-control": "public, max-age=3600, must-revalidate",
     "x-billmaniac-sitemap": label,
   };

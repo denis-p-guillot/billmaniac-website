@@ -5,8 +5,12 @@
   X-Frame-Options: SAMEORIGIN
 
 # Sitemap feeds (Cloudflare Pages Functions)
+/sitemap1.xml
+  Content-Type: text/xml; charset=utf-8
+  Cache-Control: public, max-age=3600, must-revalidate
+
 /sitemap-1.xml
-  Content-Type: application/xml; charset=utf-8
+  Content-Type: text/xml; charset=utf-8
   Cache-Control: public, max-age=3600, must-revalidate
 
 /sitemap.xml
@@ -14,7 +18,7 @@
   Cache-Control: public, max-age=3600, must-revalidate
 
 /sitemap-images.xml
-  Content-Type: application/xml; charset=utf-8
+  Content-Type: text/xml; charset=utf-8
   Cache-Control: public, max-age=3600, must-revalidate
 
 /robots.txt

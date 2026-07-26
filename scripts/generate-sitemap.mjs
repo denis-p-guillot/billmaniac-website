@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Regenerates static dist/sitemap-1.xml (Google Search Console), snapshots,
+ * Regenerates static dist/sitemap1.xml (Google Search Console), snapshots,
  * IndexNow key file, robots.txt, and _sitemap-meta.js from seo-config.js.
  */
 import { createHash, randomBytes } from "node:crypto";
@@ -41,7 +41,7 @@ const fingerprint = createHash("sha256")
 // Static files — served directly by Cloudflare Pages (most reliable for Googlebot).
 writeFileSync(join(DIST, seoMod.SITEMAP_PAGES_FILE), pagesXml, "utf8");
 writeFileSync(join(DIST, seoMod.SITEMAP_IMAGES_FILE), imagesXml, "utf8");
-for (const legacy of ["sitemap.xml"]) {
+for (const legacy of ["sitemap.xml", "sitemap-1.xml"]) {
   const legacyPath = join(DIST, legacy);
   if (existsSync(legacyPath)) unlinkSync(legacyPath);
 }
