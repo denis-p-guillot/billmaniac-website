@@ -10,6 +10,7 @@
     "apk:upload": "node scripts/copy-android-apk.mjs",
     "android:patch": "python3 scripts/patch-android-download.py",
     "deploy": "node scripts/deploy.mjs",
+    "gsc:cloudflare-fix": "node scripts/cloudflare-gsc-sitemap-fix.mjs",
     "deploy:pages": "CLOUDFLARE_ACCOUNT_ID=9345927ca3f495f89fdaddea61a5e3f9 wrangler pages deploy dist --project-name=billmaniac-website --commit-dirty=true"
   }
 }
