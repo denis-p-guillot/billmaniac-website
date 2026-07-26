@@ -1,5 +1,11 @@
 import { SITE_ORIGIN, listIndexablePages } from "./seo-config.js";
 
+const SITEMAP_IMAGE_RE = /\.(jpe?g|png|gif|webp)$/i;
+
+function rasterImages(images) {
+  return (images || []).filter((url) => SITEMAP_IMAGE_RE.test(url));
+}
+
 /** @param {string} [isoDate] YYYY-MM-DD */
 export function todayYmd(isoDate) {
   if (isoDate && /^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return isoDate;
@@ -23,27 +29,18 @@ export function listSitemapEntries(lastmod) {
 export function buildPagesSitemapXml(lastmod) {
   const entries = listSitemapEntries(lastmod);
   const body = entries
-    .map((e) => {
-      const imageTags = (e.images || [])
-        .map(
-          (imageUrl) => `    <image:image>
-      <image:loc>${escapeXml(imageUrl)}</image:loc>
-    </image:image>`,
-        )
-        .join("\n");
-
-      return `  <url>
+    .map(
+      (e) => `  <url>
     <loc>${escapeXml(e.loc)}</loc>
     <lastmod>${e.lastmod}</lastmod>
     <changefreq>${e.changefreq}</changefreq>
-    <priority>${e.priority.toFixed(1)}</priority>${imageTags ? `\n${imageTags}` : ""}
-  </url>`;
-    })
+    <priority>${e.priority.toFixed(1)}</priority>
+  </url>`,
+    )
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${body}
 </urlset>
 `;
@@ -51,12 +48,12 @@ ${body}
 
 export function buildImagesSitemapXml(lastmod) {
   const mod = todayYmd(lastmod);
-  const pages = listIndexablePages().filter((page) => (page.images || []).length > 0);
+  const pages = listIndexablePages().filter((page) => rasterImages(page.images).length > 0);
 
   const body = pages
     .map((page) => {
       const pageUrl = page.path === "/" ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${page.path}`;
-      const imageTags = (page.images || [])
+      const imageTags = rasterImages(page.images)
         .map(
           (imageUrl) => `    <image:image>
       <image:loc>${escapeXml(imageUrl)}</image:loc>
@@ -83,7 +80,7 @@ ${body}
 export function buildSitemapIndexXml(lastmod) {
   const mod = todayYmd(lastmod);
   const sitemaps = [
-    { loc: `${SITE_ORIGIN}/sitemap-pages.xml`, lastmod: mod },
+    { loc: `${SITE_ORIGIN}/sitemap.xml`, lastmod: mod },
     { loc: `${SITE_ORIGIN}/sitemap-images.xml`, lastmod: mod },
   ];
 

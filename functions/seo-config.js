@@ -1,6 +1,8 @@
 /** Shared SEO config for Cloudflare Pages middleware + sitemap. */
 export const SITE_ORIGIN = "https://billmaniac.win";
 export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/pics/og-billmaniac.svg`;
+/** Raster OG image for image sitemaps (Google does not index SVG in image sitemaps). */
+export const SITEMAP_OG_IMAGE = `${SITE_ORIGIN}/pics/og-cover.jpg`;
 
 /**
  * @typedef {{
@@ -28,7 +30,7 @@ export const SEO_PAGES = {
     changefreq: "weekly",
     pageKey: "home",
     keywords: "expense tracker, receipt scanner, AI finance, bill management",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/features": {
     title: "Features — Bill Maniac AI Receipt Scanner & Expense Tracker",
@@ -40,7 +42,7 @@ export const SEO_PAGES = {
     pageKey: "home",
     scrollTo: "features",
     keywords: "receipt OCR, expense categories, cloud storage, CSV export",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/pricing": {
     title: "Pricing — Bill Maniac Free, Pro & Maniac Plans",
@@ -52,7 +54,7 @@ export const SEO_PAGES = {
     pageKey: "home",
     scrollTo: "pricing",
     keywords: "Bill Maniac pricing, Pro plan, expense app subscription",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/faq": {
     title: "FAQ — Bill Maniac Expense Tracker",
@@ -64,7 +66,7 @@ export const SEO_PAGES = {
     pageKey: "home",
     scrollTo: "faq",
     keywords: "Bill Maniac FAQ, receipt scanning help, cloud storage",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/android": {
     title: "Android App — Bill Maniac Receipt Scanner",
@@ -75,7 +77,7 @@ export const SEO_PAGES = {
     changefreq: "weekly",
     pageKey: "android",
     keywords: "Bill Maniac Android, mobile receipt scanner, expense app",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/services": {
     title: "Products & Services — Bill Maniac",
@@ -86,7 +88,7 @@ export const SEO_PAGES = {
     changefreq: "monthly",
     pageKey: "services",
     keywords: "expense management services, receipt digitization, finance software",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/checkout": {
     title: "Checkout — Subscribe to Bill Maniac",
@@ -97,7 +99,7 @@ export const SEO_PAGES = {
     changefreq: "monthly",
     pageKey: "checkout",
     index: false,
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/about": {
     title: "About — Bill Maniac",
@@ -107,7 +109,7 @@ export const SEO_PAGES = {
     priority: 0.7,
     changefreq: "monthly",
     pageKey: "about",
-    images: [DEFAULT_OG_IMAGE, `${SITE_ORIGIN}/pics/avatars/sarah-k.jpg`, `${SITE_ORIGIN}/pics/avatars/david-l.jpg`],
+    images: [SITEMAP_OG_IMAGE, `${SITE_ORIGIN}/pics/avatars/sarah-k.jpg`, `${SITE_ORIGIN}/pics/avatars/david-l.jpg`],
   },
   "/contact": {
     title: "Contact — Bill Maniac",
@@ -116,7 +118,7 @@ export const SEO_PAGES = {
     priority: 0.7,
     changefreq: "monthly",
     pageKey: "contact",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/blog": {
     title: "Blog — Bill Maniac",
@@ -126,7 +128,7 @@ export const SEO_PAGES = {
     changefreq: "weekly",
     pageKey: "blog",
     keywords: "expense tracking tips, receipt scanning blog",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/technical": {
     title: "Technical Overview — Bill Maniac Architecture",
@@ -137,7 +139,7 @@ export const SEO_PAGES = {
     changefreq: "monthly",
     pageKey: "technical",
     keywords: "Bill Maniac architecture, Cloudflare Workers, D1, R2",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/privacy": {
     title: "Privacy Policy — Bill Maniac",
@@ -146,7 +148,7 @@ export const SEO_PAGES = {
     priority: 0.5,
     changefreq: "yearly",
     pageKey: "privacy",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/data-deletion": {
     title: "Data Deletion Request — Bill Maniac",
@@ -156,7 +158,7 @@ export const SEO_PAGES = {
     priority: 0.5,
     changefreq: "yearly",
     pageKey: "dataDeletion",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
   "/terms": {
     title: "Terms of Service — Bill Maniac",
@@ -165,14 +167,14 @@ export const SEO_PAGES = {
     priority: 0.5,
     changefreq: "yearly",
     pageKey: "terms",
-    images: [DEFAULT_OG_IMAGE],
+    images: [SITEMAP_OG_IMAGE],
   },
 };
 
 /** Site-wide images referenced in the image sitemap. */
 export const SITE_IMAGES = [
   {
-    loc: DEFAULT_OG_IMAGE,
+    loc: SITEMAP_OG_IMAGE,
     title: "Bill Maniac — AI expense tracker",
     caption: "Bill Maniac marketing image",
   },
