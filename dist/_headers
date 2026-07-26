@@ -5,6 +5,14 @@
   X-Frame-Options: SAMEORIGIN
 
 # Sitemap feeds (also served by functions/_middleware.js)
+/site-map
+  Content-Type: text/html; charset=UTF-8
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/site-map.html
+  Content-Type: text/html; charset=UTF-8
+  Cache-Control: public, max-age=3600, must-revalidate
+
 /sitemap.xml
   Content-Type: application/xml; charset=UTF-8
   Cache-Control: no-store, must-revalidate

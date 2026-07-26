@@ -7,6 +7,8 @@
     "/manifest.json",
     "/metadata.json",
     "/sitemap.xml",
+    "/site-map",
+    "/site-map.html",
     "/sitemap-images.xml",
     "/*.txt",
     "/_headers",

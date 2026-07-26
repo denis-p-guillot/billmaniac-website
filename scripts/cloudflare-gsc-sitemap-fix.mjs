@@ -67,9 +67,11 @@ Do this in the Cloudflare dashboard for ${ZONE_NAME}:
 
 5. Google Search Console
    • Use property that matches your URLs: https://billmaniac.win/ (or Domain: billmaniac.win)
-   • Remove old sitemap entries (sitemap1.xml, sitemap-1.xml, …)
+   • Delete ALL old sitemap rows (sitemap1.xml, sitemap-1.xml, failed attempts)
    • Submit ONLY: https://billmaniac.win/sitemap.xml
-   • URL Inspection → test live URL on that sitemap address; it must NOT say 403
+   • If URL Inspection Live Test on that URL succeeds, the Sitemaps report may still say
+     "could not be read" for days — that queue is separate; status is often stale/pending
+   • Also URL-inspect https://billmaniac.win/site-map and Request Indexing (HTML page)
 
 To create the WAF rule automatically, create an API token with
 Zone → Firewall Services → Edit for ${ZONE_NAME}, add to .env as:

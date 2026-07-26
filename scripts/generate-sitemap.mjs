@@ -48,6 +48,35 @@ for (const legacy of ["sitemap1.xml", "sitemap-1.xml"]) {
 
 writeFileSync(join(CONFIG_DIR, "sitemap.generated.xml"), pagesXml, "utf8");
 writeFileSync(join(CONFIG_DIR, "sitemap-images.generated.xml"), imagesXml, "utf8");
+
+const htmlLinks = entries
+  .map(
+    (e) =>
+      `    <li><a href="${e.loc.replace(/"/g, "&quot;")}">${e.loc.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</a></li>`,
+  )
+  .join("\n");
+const htmlSitemap = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Site map — Bill Maniac</title>
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="${seoMod.SITE_ORIGIN}/site-map">
+</head>
+<body>
+  <main>
+    <h1>Bill Maniac site map</h1>
+    <p>HTML overview of public pages (updated ${lastmod}). XML feed: <a href="${seoMod.SITEMAP_PAGES_URL}">${seoMod.SITEMAP_PAGES_URL}</a></p>
+    <ul>
+${htmlLinks}
+    </ul>
+  </main>
+</body>
+</html>
+`;
+writeFileSync(join(DIST, "site-map.html"), htmlSitemap, "utf8");
+
 writeFileSync(join(DIST, `${indexNowKey}.txt`), `${indexNowKey}\n`, "utf8");
 
 writeFileSync(
@@ -79,6 +108,7 @@ Sitemap: ${seoMod.SITEMAP_PAGES_URL}
 );
 
 console.log(`Static sitemap → dist/${seoMod.SITEMAP_PAGES_FILE} (${entries.length} URLs, lastmod=${lastmod})`);
+console.log(`Static HTML sitemap → dist/site-map.html (public URL /site-map)`);
 console.log(`Static image sitemap → dist/${seoMod.SITEMAP_IMAGES_FILE}`);
 console.log(`Submit in GSC: ${seoMod.SITEMAP_PAGES_URL}`);
 console.log(`IndexNow key file → dist/${indexNowKey}.txt`);
