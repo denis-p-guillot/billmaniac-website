@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * Regenerates static dist/sitemap.xml (Google Search Console), snapshots,
+ * Regenerates static dist/sitemap-1.xml (Google Search Console), snapshots,
  * IndexNow key file, robots.txt, and _sitemap-meta.js from seo-config.js.
  */
 import { createHash, randomBytes } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -39,8 +39,12 @@ const fingerprint = createHash("sha256")
   .digest("hex");
 
 // Static files — served directly by Cloudflare Pages (most reliable for Googlebot).
-writeFileSync(join(DIST, "sitemap.xml"), pagesXml, "utf8");
-writeFileSync(join(DIST, "sitemap-images.xml"), imagesXml, "utf8");
+writeFileSync(join(DIST, seoMod.SITEMAP_PAGES_FILE), pagesXml, "utf8");
+writeFileSync(join(DIST, seoMod.SITEMAP_IMAGES_FILE), imagesXml, "utf8");
+for (const legacy of ["sitemap.xml"]) {
+  const legacyPath = join(DIST, legacy);
+  if (existsSync(legacyPath)) unlinkSync(legacyPath);
+}
 
 writeFileSync(join(CONFIG_DIR, "sitemap.generated.xml"), pagesXml, "utf8");
 writeFileSync(join(CONFIG_DIR, "sitemap-images.generated.xml"), imagesXml, "utf8");
@@ -53,9 +57,9 @@ export const SITEMAP_LASTMOD = ${JSON.stringify(lastmod)};
 export const SITEMAP_FINGERPRINT = ${JSON.stringify(fingerprint)};
 export const INDEXNOW_KEY_PUBLIC = ${JSON.stringify(indexNowKey)};
 export const SITEMAP_URL_COUNT = ${entries.length};
-export const SITEMAP_INDEX_URL = ${JSON.stringify(`${seoMod.SITE_ORIGIN}/sitemap.xml`)};
-export const SITEMAP_PAGES_URL = ${JSON.stringify(`${seoMod.SITE_ORIGIN}/sitemap.xml`)};
-export const SITEMAP_IMAGES_URL = ${JSON.stringify(`${seoMod.SITE_ORIGIN}/sitemap-images.xml`)};
+export const SITEMAP_INDEX_URL = ${JSON.stringify(seoMod.SITEMAP_PAGES_URL)};
+export const SITEMAP_PAGES_URL = ${JSON.stringify(seoMod.SITEMAP_PAGES_URL)};
+export const SITEMAP_IMAGES_URL = ${JSON.stringify(seoMod.SITEMAP_IMAGES_URL)};
 `,
   "utf8",
 );
@@ -68,14 +72,14 @@ Allow: /
 Disallow: /api/
 Disallow: /cdn-cgi/
 
-# Submit in Google Search Console: ${seoMod.SITE_ORIGIN}/sitemap.xml
-Sitemap: ${seoMod.SITE_ORIGIN}/sitemap.xml
+# Submit in Google Search Console: ${seoMod.SITEMAP_PAGES_URL}
+Sitemap: ${seoMod.SITEMAP_PAGES_URL}
 `,
   "utf8",
 );
 
-console.log(`Static sitemap → dist/sitemap.xml (${entries.length} URLs, lastmod=${lastmod})`);
-console.log(`Static image sitemap → dist/sitemap-images.xml`);
-console.log(`Submit in GSC: ${seoMod.SITE_ORIGIN}/sitemap.xml`);
+console.log(`Static sitemap → dist/${seoMod.SITEMAP_PAGES_FILE} (${entries.length} URLs, lastmod=${lastmod})`);
+console.log(`Static image sitemap → dist/${seoMod.SITEMAP_IMAGES_FILE}`);
+console.log(`Submit in GSC: ${seoMod.SITEMAP_PAGES_URL}`);
 console.log(`IndexNow key file → dist/${indexNowKey}.txt`);
 console.log(`fingerprint=${fingerprint.slice(0, 12)}…`);

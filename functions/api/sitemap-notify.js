@@ -1,5 +1,5 @@
 import { buildSitemapIndexXml, buildPagesSitemapXml, listSitemapEntries, notifySearchEngines } from "../sitemap-lib.js";
-import { SITE_ORIGIN } from "../seo-config.js";
+import { SITE_ORIGIN, SITEMAP_IMAGES_URL, SITEMAP_PAGES_URL } from "../seo-config.js";
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data, null, 2), {
@@ -47,9 +47,9 @@ async function handleStatus(env) {
     urlCount: listSitemapEntries(lastmod).length,
     sitemapIndexBytes: buildSitemapIndexXml(lastmod).length,
     sitemapPagesBytes: buildPagesSitemapXml(lastmod).length,
-    sitemapIndexUrl: `${SITE_ORIGIN}/sitemap.xml`,
-    sitemapPagesUrl: `${SITE_ORIGIN}/sitemap.xml`,
-    sitemapImagesUrl: `${SITE_ORIGIN}/sitemap-images.xml`,
+    sitemapIndexUrl: SITEMAP_PAGES_URL,
+    sitemapPagesUrl: SITEMAP_PAGES_URL,
+    sitemapImagesUrl: SITEMAP_IMAGES_URL,
     indexNowConfigured: Boolean(env.INDEXNOW_KEY),
     bingConfigured: Boolean(env.BING_WEBMASTER_API_KEY),
   });
@@ -72,7 +72,7 @@ async function handleNotify(env) {
       ok: softOk,
       rateLimited: result.indexNow?.status === 429,
       site: SITE_ORIGIN,
-      sitemapPreviewUrl: `${SITE_ORIGIN}/sitemap.xml`,
+      sitemapPreviewUrl: SITEMAP_PAGES_URL,
       urlSample: listSitemapEntries(env.SITEMAP_LASTMOD)
         .slice(0, 3)
         .map((e) => e.loc),

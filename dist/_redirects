@@ -1,3 +1,6 @@
+# Legacy sitemap URL → current feed
+/sitemap.xml /sitemap-1.xml 301
+
 # Cloudflare Pages — clean URL SPA fallback (backup to functions middleware)
 /features    /index.html  200
 /pricing     /index.html  200

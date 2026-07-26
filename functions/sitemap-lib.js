@@ -1,4 +1,9 @@
-import { SITE_ORIGIN, listIndexablePages } from "./seo-config.js";
+import {
+  SITE_ORIGIN,
+  SITEMAP_IMAGES_URL,
+  SITEMAP_PAGES_URL,
+  listIndexablePages,
+} from "./seo-config.js";
 
 const SITEMAP_IMAGE_RE = /\.(jpe?g|png|gif|webp)$/i;
 
@@ -80,8 +85,8 @@ ${body}
 export function buildSitemapIndexXml(lastmod) {
   const mod = todayYmd(lastmod);
   const sitemaps = [
-    { loc: `${SITE_ORIGIN}/sitemap.xml`, lastmod: mod },
-    { loc: `${SITE_ORIGIN}/sitemap-images.xml`, lastmod: mod },
+    { loc: SITEMAP_PAGES_URL, lastmod: mod },
+    { loc: SITEMAP_IMAGES_URL, lastmod: mod },
   ];
 
   const body = sitemaps
@@ -157,7 +162,7 @@ export async function submitIndexNow({ host, key, keyLocation, urlList, fetchImp
 export async function submitBingSitemapFeed({
   apiKey,
   siteUrl = SITE_ORIGIN,
-  feedUrl = `${SITE_ORIGIN}/sitemap.xml`,
+  feedUrl = SITEMAP_PAGES_URL,
   fetchImpl = fetch,
 }) {
   if (!apiKey) return { ok: true, skipped: true, reason: "BING_WEBMASTER_API_KEY not set" };
@@ -177,7 +182,7 @@ export async function submitBingSitemapFeed({
 }
 
 export async function submitGoogleSitemapPing({
-  feedUrl = `${SITE_ORIGIN}/sitemap.xml`,
+  feedUrl = SITEMAP_PAGES_URL,
   pingUrl,
   fetchImpl = fetch,
 }) {
@@ -186,7 +191,7 @@ export async function submitGoogleSitemapPing({
       ok: true,
       skipped: true,
       reason:
-        "Google anonymous sitemap ping is deprecated; submit https://billmaniac.win/sitemap.xml manually in Google Search Console",
+        `Google anonymous sitemap ping is deprecated; submit ${SITEMAP_PAGES_URL} manually in Google Search Console`,
     };
   }
   const url = pingUrl.includes("{sitemap}")
@@ -202,7 +207,7 @@ export async function notifySearchEngines(env, { lastmod } = {}) {
   const key = env.INDEXNOW_KEY;
   const entries = listSitemapEntries(lastmod || env.SITEMAP_LASTMOD);
   const urlList = entries.map((e) => e.loc);
-  const sitemapUrl = `${SITE_ORIGIN}/sitemap.xml`;
+  const sitemapUrl = SITEMAP_PAGES_URL;
   const fingerprint = `${urlList.join("|")}|${entries[0]?.lastmod || ""}`;
 
   const indexNow = key
@@ -232,8 +237,8 @@ export async function notifySearchEngines(env, { lastmod } = {}) {
     ok: Boolean(indexNowAccepted) && Boolean(bing.ok || bing.skipped),
     fingerprint,
     sitemapUrl,
-    sitemapPagesUrl: `${SITE_ORIGIN}/sitemap.xml`,
-    sitemapImagesUrl: `${SITE_ORIGIN}/sitemap-images.xml`,
+    sitemapPagesUrl: SITEMAP_PAGES_URL,
+    sitemapImagesUrl: SITEMAP_IMAGES_URL,
     urlCount: urlList.length,
     lastmod: entries[0]?.lastmod,
     indexNow,
