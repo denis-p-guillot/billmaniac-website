@@ -95,7 +95,7 @@ TRANSLATION_PATCHES = [
         '"ctaFeatures": "See Android Features",',
         '"ctaFeatures": "See Android Features",\n'
         '            "ctaApk": "Download Android APK",\n'
-        '            "apkMeta": "Version 0.1.1 · direct install (enable Install unknown apps if prompted).",',
+        '            "apkMeta": "Version 0.1.4 · direct install (enable Install unknown apps if prompted).",',
     ),
     (
         '"note": "Android APK / Play listing coming soon. Sign in on web today with email or Google — the same account works on Android."',
@@ -105,7 +105,7 @@ TRANSLATION_PATCHES = [
         '"ctaFeatures": "Voir les fonctions Android",',
         '"ctaFeatures": "Voir les fonctions Android",\n'
         '            "ctaApk": "Télécharger l’APK Android",\n'
-        '            "apkMeta": "Version 0.1.1 · installation directe (autorisez les sources inconnues si demandé).",',
+        '            "apkMeta": "Version 0.1.4 · installation directe (autorisez les sources inconnues si demandé).",',
     ),
     (
         '"note": "APK / fiche Play bientôt disponibles. Connectez-vous sur le web par e-mail ou Google — le même compte fonctionne sur Android."',
@@ -115,7 +115,7 @@ TRANSLATION_PATCHES = [
         '"ctaFeatures": "Ver funciones Android",',
         '"ctaFeatures": "Ver funciones Android",\n'
         '            "ctaApk": "Descargar APK Android",\n'
-        '            "apkMeta": "Versión 0.1.1 · instalación directa (habilite orígenes desconocidos si se solicita).",',
+        '            "apkMeta": "Versión 0.1.4 · instalación directa (habilite orígenes desconocidos si se solicita).",',
     ),
     (
         '"note": "APK / ficha de Play próximamente. Inicia sesión en la web con correo o Google — la misma cuenta funciona en Android."',
@@ -125,7 +125,7 @@ TRANSLATION_PATCHES = [
         '"ctaFeatures": "Lihat Fitur Android",',
         '"ctaFeatures": "Lihat Fitur Android",\n'
         '            "ctaApk": "Unduh APK Android",\n'
-        '            "apkMeta": "Versi 0.1.1 · instalasi langsung (izinkan aplikasi tidak dikenal jika diminta).",',
+        '            "apkMeta": "Versi 0.1.4 · instalasi langsung (izinkan aplikasi tidak dikenal jika diminta).",',
     ),
     (
         '"note": "APK Android / listing Play segera hadir. Masuk di web dengan email atau Google — akun yang sama berfungsi di Android."',
@@ -135,25 +135,25 @@ TRANSLATION_PATCHES = [
         '"cta": "Get Started for Free",',
         '"cta": "Get Started for Free",\n'
         '            "ctaApk": "Download Android App",\n'
-        '            "apkMeta": "Version 0.1.1 · direct install on Android.",',
+        '            "apkMeta": "Version 0.1.4 · direct install on Android.",',
     ),
     (
         '"cta": "Commencez gratuitement",',
         '"cta": "Commencez gratuitement",\n'
         '            "ctaApk": "Télécharger l’app Android",\n'
-        '            "apkMeta": "Version 0.1.1 · installation directe sur Android.",',
+        '            "apkMeta": "Version 0.1.4 · installation directe sur Android.",',
     ),
     (
         '"cta": "Empieza gratis",',
         '"cta": "Empieza gratis",\n'
         '            "ctaApk": "Descargar app Android",\n'
-        '            "apkMeta": "Versión 0.1.1 · instalación directa en Android.",',
+        '            "apkMeta": "Versión 0.1.4 · instalación directa en Android.",',
     ),
     (
         '"cta": "Mulai gratis",',
         '"cta": "Mulai gratis",\n'
         '            "ctaApk": "Unduh Aplikasi Android",\n'
-        '            "apkMeta": "Versi 0.1.1 · instalasi langsung di Android.",',
+        '            "apkMeta": "Versi 0.1.4 · instalasi langsung di Android.",',
     ),
 ]
 
