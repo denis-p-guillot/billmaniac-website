@@ -60,8 +60,8 @@ Do this in the Cloudflare dashboard for ${ZONE_NAME}:
 3. Security → WAF → Custom rules → Create rule
    • Name: Allow verified bots and sitemap feeds
    • Expression:
-       (cf.client.bot) or (http.request.uri.path in {"/sitemap.xml" "/sitemap-images.xml" "/robots.txt"})
-   • Action: Skip → All remaining custom rules (and Bot Fight Mode if listed)
+       (cf.client.bot) or (http.request.uri.path in {"/sitemap.xml" "/sitemap-images.xml" "/robots.txt" "/site-map"})
+   • Action: Skip → All remaining custom rules, Super Bot Fight Mode, and rate limits
 
 4. Caching → Configuration → Purge Everything
 
@@ -107,7 +107,13 @@ async function main() {
   if (!zone) throw new Error(`Zone not found: ${ZONE_NAME}`);
 
   const expression =
-    '(cf.client.bot) or (http.request.uri.path in {"/sitemap.xml" "/sitemap-images.xml" "/robots.txt"})';
+    '(cf.client.bot) or (http.request.uri.path in {"/sitemap.xml" "/sitemap-images.xml" "/robots.txt" "/site-map"})';
+
+  const skipPhases = [
+    "http_request_firewall_managed",
+    "http_request_sbfm",
+    "http_rate_limit",
+  ];
 
   const ruleset = await cf(
     `/zones/${zone.id}/rulesets/phases/http_request_firewall_custom/entrypoint`,
@@ -128,6 +134,7 @@ async function main() {
             action: "skip",
             action_parameters: {
               ruleset: "current",
+              phases: skipPhases,
             },
             description: "Allow verified bots and sitemap feeds",
             expression,

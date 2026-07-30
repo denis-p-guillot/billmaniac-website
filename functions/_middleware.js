@@ -2,6 +2,7 @@ import {
   DEFAULT_OG_IMAGE,
   SITE_ORIGIN,
   SEO_PAGES,
+  SITEMAP_PAGES_URL,
   getSeoForPath,
   isIndexablePath,
   normalizePath,
@@ -47,6 +48,14 @@ function injectOgLocales(html) {
 function upsertCanonical(html, href) {
   const re = /<link\s+rel=["']canonical["']\s+href=["'][^"']*["']\s*\/?>/i;
   const tag = `<link rel="canonical" href="${escapeAttr(href)}" />`;
+  if (re.test(html)) return html.replace(re, tag);
+  return html.replace(/<\/head>/i, `    ${tag}\n</head>`);
+}
+
+function upsertSitemapLink(html, href) {
+  const re =
+    /<link\s+rel=["']sitemap["'][^>]*>/i;
+  const tag = `<link rel="sitemap" type="application/xml" title="Sitemap" href="${escapeAttr(href)}" />`;
   if (re.test(html)) return html.replace(re, tag);
   return html.replace(/<\/head>/i, `    ${tag}\n</head>`);
 }
@@ -124,6 +133,7 @@ function applySeo(html, seo, pathname) {
   }
   out = upsertMetaByName(out, "robots", robots);
   out = upsertCanonical(out, url);
+  out = upsertSitemapLink(out, SITEMAP_PAGES_URL);
   out = injectHreflang(out, url);
   out = upsertMetaByProperty(out, "og:type", "website");
   out = upsertMetaByProperty(out, "og:url", url);
