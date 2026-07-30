@@ -96,6 +96,36 @@ async function cf(path, init = {}) {
   return body.result;
 }
 
+async function listLegacyFirewallRules(zoneId) {
+  try {
+    const res = await fetch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/firewall/rules?per_page=50`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    const body = await res.json();
+    if (!body.success) return null;
+    return body.result || [];
+  } catch {
+    return null;
+  }
+}
+
+function reportExistingLegacyRules(rules) {
+  const sitemapRules = rules.filter((rule) => {
+    const expr = rule.filter?.expression || "";
+    return (
+      /sitemap|robots\.txt|cf\.client\.bot/i.test(expr) &&
+      rule.action === "skip"
+    );
+  });
+  if (sitemapRules.length === 0) return false;
+  console.log("Found existing WAF skip rules (legacy firewall rules API):");
+  for (const rule of sitemapRules) {
+    console.log(`  • ${rule.description}: ${rule.filter?.expression}`);
+  }
+  return true;
+}
+
 async function main() {
   if (!token) {
     dashboardSteps();
@@ -115,38 +145,53 @@ async function main() {
     "http_rate_limit",
   ];
 
-  const ruleset = await cf(
-    `/zones/${zone.id}/rulesets/phases/http_request_firewall_custom/entrypoint`,
-  );
+  try {
+    const ruleset = await cf(
+      `/zones/${zone.id}/rulesets/phases/http_request_firewall_custom/entrypoint`,
+    );
 
-  const existing = (ruleset.rules || []).find(
-    (r) => r.description === "Allow verified bots and sitemap feeds",
-  );
-  if (existing) {
-    console.log("WAF skip rule already exists.");
-  } else {
-    await cf(`/zones/${zone.id}/rulesets/${ruleset.id}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        rules: [
-          ...(ruleset.rules || []),
-          {
-            action: "skip",
-            action_parameters: {
-              ruleset: "current",
-              phases: skipPhases,
+    const existing = (ruleset.rules || []).find(
+      (r) => r.description === "Allow verified bots and sitemap feeds",
+    );
+    if (existing) {
+      console.log("WAF skip rule already exists.");
+    } else {
+      await cf(`/zones/${zone.id}/rulesets/${ruleset.id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          rules: [
+            ...(ruleset.rules || []),
+            {
+              action: "skip",
+              action_parameters: {
+                ruleset: "current",
+                phases: skipPhases,
+              },
+              description: "Allow verified bots and sitemap feeds",
+              expression,
+              enabled: true,
             },
-            description: "Allow verified bots and sitemap feeds",
-            expression,
-            enabled: true,
-          },
-        ],
-      }),
-    });
-    console.log("Created WAF skip rule for verified bots + sitemap paths.");
+          ],
+        }),
+      });
+      console.log("Created WAF skip rule for verified bots + sitemap paths.");
+    }
+  } catch (rulesetError) {
+    console.warn(
+      `Could not manage rulesets API (${rulesetError.message}). Checking legacy rules…`,
+    );
+    const legacy = await listLegacyFirewallRules(zone.id);
+    if (legacy && reportExistingLegacyRules(legacy)) {
+      console.log(
+        "\nSitemap skip rules are already configured. If GSC still fails, disable Bot Fight Mode manually:",
+      );
+      console.log("  Security → Bots → Bot Fight Mode → OFF (or allow verified bots)");
+    } else {
+      throw rulesetError;
+    }
   }
 
-  console.log("Purge cache in dashboard (Caching → Purge Everything), then resubmit:");
+  console.log("\nPurge cache in dashboard (Caching → Purge Everything), then resubmit:");
   console.log("  https://billmaniac.win/sitemap.xml");
 }
 
