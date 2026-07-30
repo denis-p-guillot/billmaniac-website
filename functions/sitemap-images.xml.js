@@ -10,7 +10,6 @@ export async function onRequest() {
       "Content-Type": "application/xml; charset=UTF-8",
       "Cache-Control": "no-store, must-revalidate",
       "CDN-Cache-Control": "no-store",
-      "X-Robots-Tag": "noindex",
     },
   });
 }
