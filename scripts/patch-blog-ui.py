@@ -51,6 +51,83 @@ function renderContent(content) {
     });
 }
 
+function PublisherBadge({ label }) {
+    return _jsxs("span", {
+        className: "inline-flex items-center gap-1.5 rounded-full bg-indigo-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-300 ring-1 ring-inset ring-indigo-400/25",
+        children: [
+            _jsx("span", { className: "h-1.5 w-1.5 rounded-full bg-indigo-400", "aria-hidden": "true" }),
+            label,
+        ],
+    });
+}
+
+function BlogArticle({ post, publisherBadge, publishedOn }) {
+    return _jsxs("article", {
+        id: post.slug,
+        className: "overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-950 p-8 shadow-xl ring-1 ring-white/5 sm:p-10",
+        children: [
+            _jsxs("header", {
+                className: "space-y-4 border-b border-slate-800/80 pb-6",
+                children: [
+                    _jsxs("div", {
+                        className: "flex flex-wrap items-center gap-3",
+                        children: [
+                            _jsx(PublisherBadge, { label: publisherBadge }),
+                            _jsxs("span", {
+                                className: "text-sm text-slate-500",
+                                children: [
+                                    publishedOn,
+                                    " ",
+                                    _jsx("time", { dateTime: parsePublishedAt(post), className: "font-medium text-slate-300", children: post.date }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    _jsx("h2", { className: "text-2xl font-bold leading-tight text-white sm:text-3xl", children: post.title }),
+                ],
+            }),
+            _jsx("div", { className: "mt-8", children: renderContent(post.content) }),
+        ],
+    });
+}
+
+function BlogPagination({ currentPage, totalPages, goToPage, previous, nextLabel, pageLabel, ofLabel }) {
+    if (totalPages <= 1)
+        return null;
+    return _jsxs("nav", {
+        className: "mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center",
+        "aria-label": "Blog pagination",
+        children: [
+            _jsx("button", {
+                type: "button",
+                onClick: () => goToPage(currentPage - 1),
+                disabled: currentPage <= 1,
+                className: "inline-flex min-w-[7rem] items-center justify-center rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40",
+                children: previous,
+            }),
+            _jsxs("p", {
+                className: "text-sm text-slate-400",
+                children: [
+                    _jsx("span", { className: "text-slate-500", children: pageLabel }),
+                    " ",
+                    _jsx("span", { className: "font-semibold text-white", children: currentPage }),
+                    " ",
+                    _jsx("span", { className: "text-slate-500", children: ofLabel }),
+                    " ",
+                    _jsx("span", { className: "font-semibold text-white", children: totalPages }),
+                ],
+            }),
+            _jsx("button", {
+                type: "button",
+                onClick: () => goToPage(currentPage + 1),
+                disabled: currentPage >= totalPages,
+                className: "inline-flex min-w-[7rem] items-center justify-center rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40",
+                children: nextLabel,
+            }),
+        ],
+    });
+}
+
 const Blog = () => {
     const { t } = useLanguage();
     const blog = t.blog;
@@ -77,8 +154,8 @@ const Blog = () => {
         setSort(event.target.value);
         setPage(1);
     };
-    const goToPage = (nextPage) => {
-        setPage(nextPage);
+    const goToPage = (targetPage) => {
+        setPage(targetPage);
         if (typeof document !== "undefined") {
             document.getElementById("blog")?.scrollIntoView({ behavior: "smooth", block: "start" });
         }
@@ -89,7 +166,95 @@ const Blog = () => {
         event.preventDefault();
         navigateToPath("/");
     };
-    return (_jsx("section", { id: "blog", className: "bg-slate-950 py-20 sm:py-28", children: _jsxs("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8", children: [_jsxs("div", { className: "text-center max-w-3xl mx-auto", children: [_jsx("p", { className: "text-sm font-semibold uppercase tracking-widest text-indigo-400", children: eyebrow || "Insights & updates" }), _jsx("h1", { className: "mt-3 text-4xl font-extrabold text-white sm:text-5xl tracking-tight", children: blog.title }), _jsx("p", { className: "mt-5 text-lg leading-relaxed text-slate-400", children: blog.intro })] }), posts && posts.length > 0 ? (_jsxs("div", { children: [_jsxs("div", { className: "mt-12 flex flex-col gap-4 border-b border-slate-800 pb-6 sm:flex-row sm:items-center sm:justify-between", children: [_jsxs("label", { className: "flex items-center gap-3 text-sm text-slate-400", children: [_jsx("span", { className: "font-medium text-slate-300", children: sortLabel || "Sort by" }), _jsxs("select", { value: sort, onChange: onSortChange, className: "rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-medium text-slate-100 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30", children: [_jsx("option", { value: "newest", children: sortNewest || "Newest first" }), _jsx("option", { value: "oldest", children: sortOldest || "Oldest first" })] })] }), _jsxs("p", { className: "text-sm text-slate-500", children: [showingLabel || "Showing", " ", _jsxs("span", { className: "font-medium text-slate-300", children: [rangeStart, "\u2013", rangeEnd] }), " ", ofLabel || "of", " ", _jsxs("span", { className: "font-medium text-slate-300", children: [total, " ", articlesLabel || "articles"] })] })] }), _jsx("div", { className: "mt-10 space-y-10", children: visible.map((post) => (_jsxs("article", { id: post.slug, className: "overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-950 p-8 shadow-xl ring-1 ring-white/5 sm:p-10", children: [_jsxs("header", { className: "space-y-4 border-b border-slate-800/80 pb-6", children: [_jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [_jsxs("span", { className: "inline-flex items-center gap-1.5 rounded-full bg-indigo-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-300 ring-1 ring-inset ring-indigo-400/25", children: [_jsx("span", { className: "h-1.5 w-1.5 rounded-full bg-indigo-400", "aria-hidden": "true" }), publisherBadge || "Bill Maniac Admin"] }), _jsxs("span", { className: "text-sm text-slate-500", children: [publishedOn || "Published", " ", _jsx("time", { dateTime: parsePublishedAt(post), className: "font-medium text-slate-300", children: post.date })] })] }), _jsx("h2", { className: "text-2xl font-bold leading-tight text-white sm:text-3xl", children: post.title })] }), _jsx("div", { className: "mt-8", children: renderContent(post.content) })] }, post.slug))) }), totalPages > 1 ? (_jsxs("nav", { className: "mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center", "aria-label": "Blog pagination", children: [_jsx("button", { type: "button", onClick: () => goToPage(currentPage - 1), disabled: currentPage <= 1, className: "inline-flex min-w-[7rem] items-center justify-center rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40", children: previous || "Previous" }), _jsxs("p", { className: "text-sm text-slate-400", children: [_jsx("span", { className: "text-slate-500", children: pageLabel || "Page" }), " ", _jsx("span", { className: "font-semibold text-white", children: currentPage }), " ", _jsx("span", { className: "text-slate-500", children: ofLabel || "of" }), " ", _jsx("span", { className: "font-semibold text-white", children: totalPages })] }), _jsx("button", { type: "button", onClick: () => goToPage(currentPage + 1), disabled: currentPage >= totalPages, className: "inline-flex min-w-[7rem] items-center justify-center rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40", children: next || "Next" })] }) : null] })) : (_jsxs("div", { className: "mt-12 space-y-4 rounded-2xl border border-slate-800 bg-slate-900/80 p-12 text-center shadow-xl sm:p-16", children: [_jsx("h2", { className: "text-2xl font-bold text-white sm:text-3xl", children: comingSoonTitle || "Coming Soon!" }), _jsx("p", { className: "mx-auto max-w-lg text-base leading-relaxed text-slate-400", children: comingSoonText || "We're working on bringing you insightful articles. Stay tuned!" })] })), _jsx("div", { className: "mt-14 text-center", children: _jsxs("a", { href: "/", onClick: onBack, className: "inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-white", children: [_jsx(ArrowLeftIcon, { "aria-hidden": "true", className: "h-4 w-4" }), blog.backToHome] }) })] }) }));
+    const badgeLabel = publisherBadge || "Bill Maniac Admin";
+    const publishedLabel = publishedOn || "Published";
+    const hasPosts = Boolean(posts && posts.length > 0);
+    return (_jsx("section", {
+        id: "blog",
+        className: "bg-slate-950 py-20 sm:py-28",
+        children: _jsxs("div", {
+            className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8",
+            children: [
+                _jsxs("div", {
+                    className: "text-center max-w-3xl mx-auto",
+                    children: [
+                        _jsx("p", { className: "text-sm font-semibold uppercase tracking-widest text-indigo-400", children: eyebrow || "Insights & updates" }),
+                        _jsx("h1", { className: "mt-3 text-4xl font-extrabold text-white sm:text-5xl tracking-tight", children: blog.title }),
+                        _jsx("p", { className: "mt-5 text-lg leading-relaxed text-slate-400", children: blog.intro }),
+                    ],
+                }),
+                hasPosts
+                    ? _jsxs("div", {
+                        children: [
+                            _jsxs("div", {
+                                className: "mt-12 flex flex-col gap-4 border-b border-slate-800 pb-6 sm:flex-row sm:items-center sm:justify-between",
+                                children: [
+                                    _jsxs("label", {
+                                        className: "flex items-center gap-3 text-sm text-slate-400",
+                                        children: [
+                                            _jsx("span", { className: "font-medium text-slate-300", children: sortLabel || "Sort by" }),
+                                            _jsxs("select", {
+                                                value: sort,
+                                                onChange: onSortChange,
+                                                className: "rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-medium text-slate-100 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30",
+                                                children: [
+                                                    _jsx("option", { value: "newest", children: sortNewest || "Newest first" }),
+                                                    _jsx("option", { value: "oldest", children: sortOldest || "Oldest first" }),
+                                                ],
+                                            }),
+                                        ],
+                                    }),
+                                    _jsxs("p", {
+                                        className: "text-sm text-slate-500",
+                                        children: [
+                                            showingLabel || "Showing",
+                                            " ",
+                                            _jsxs("span", { className: "font-medium text-slate-300", children: [rangeStart, "\u2013", rangeEnd] }),
+                                            " ",
+                                            ofLabel || "of",
+                                            " ",
+                                            _jsxs("span", { className: "font-medium text-slate-300", children: [total, " ", articlesLabel || "articles"] }),
+                                        ],
+                                    }),
+                                ],
+                            }),
+                            _jsx("div", {
+                                className: "mt-10 space-y-10",
+                                children: visible.map((post) => (_jsx(BlogArticle, { post: post, publisherBadge: badgeLabel, publishedOn: publishedLabel }, post.slug))),
+                            }),
+                            _jsx(BlogPagination, {
+                                currentPage: currentPage,
+                                totalPages: totalPages,
+                                goToPage: goToPage,
+                                previous: previous || "Previous",
+                                nextLabel: next || "Next",
+                                pageLabel: pageLabel || "Page",
+                                ofLabel: ofLabel || "of",
+                            }),
+                        ],
+                    })
+                    : _jsxs("div", {
+                        className: "mt-12 space-y-4 rounded-2xl border border-slate-800 bg-slate-900/80 p-12 text-center shadow-xl sm:p-16",
+                        children: [
+                            _jsx("h2", { className: "text-2xl font-bold text-white sm:text-3xl", children: comingSoonTitle || "Coming Soon!" }),
+                            _jsx("p", { className: "mx-auto max-w-lg text-base leading-relaxed text-slate-400", children: comingSoonText || "We're working on bringing you insightful articles. Stay tuned!" }),
+                        ],
+                    }),
+                _jsx("div", {
+                    className: "mt-14 text-center",
+                    children: _jsxs("a", {
+                        href: "/",
+                        onClick: onBack,
+                        className: "inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-white",
+                        children: [
+                            _jsx(ArrowLeftIcon, { "aria-hidden": "true", className: "h-4 w-4" }),
+                            blog.backToHome,
+                        ],
+                    }),
+                }),
+            ],
+        }),
+    }));
 };
 export default Blog;
 '''
@@ -196,9 +361,48 @@ def patch_translations(trans: str) -> str:
     return trans
 
 
+def verify_blog_src(src: str) -> None:
+    import subprocess
+    import tempfile
+
+    def count_outside_strings(text: str, char: str) -> int:
+        in_str = None
+        esc = False
+        total = 0
+        for ch in text:
+            if in_str:
+                if esc:
+                    esc = False
+                elif ch == "\\":
+                    esc = True
+                elif ch == in_str:
+                    in_str = None
+                continue
+            if ch in "\"'":
+                in_str = ch
+                continue
+            if ch == char:
+                total += 1
+        return total
+
+    for open_ch, close_ch in ("(", ")"), ("{", "}"), ("[", "]"):
+        if count_outside_strings(src, open_ch) != count_outside_strings(src, close_ch):
+            raise SystemExit(f"Blog component has unbalanced {open_ch}{close_ch}")
+
+    with tempfile.NamedTemporaryFile("w", suffix=".mjs", delete=False) as handle:
+        handle.write(src)
+        path = handle.name
+
+    check = subprocess.run(["node", "--check", path], capture_output=True, text=True)
+    if check.returncode != 0:
+        raise SystemExit(f"Blog component syntax error:\n{check.stderr}")
+
+
 def main() -> None:
     if MARKER not in BLOG_SRC:
         raise SystemExit(f"Missing marker {MARKER} in BLOG_SRC")
+
+    verify_blog_src(BLOG_SRC)
 
     html = INDEX.read_text()
     m = re.search(r"(<script type=\"importmap\">)(.*?)(</script>)", html, re.S)
