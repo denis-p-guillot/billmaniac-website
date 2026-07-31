@@ -57,7 +57,13 @@ npx wrangler pages secret put SITEMAP_NOTIFY_SECRET --project-name=billmaniac-we
 
 # Optional
 npx wrangler pages secret put BING_WEBMASTER_API_KEY --project-name=billmaniac-website
+
+# Contact form (/api/contact) — relay enquiries to contact@billmaniac.win via Resend
+npx wrangler pages secret put TURNSTILE_SECRET_KEY --project-name=billmaniac-website
+npx wrangler pages secret put RESEND_API_KEY --project-name=billmaniac-website
 ```
+
+Plain vars (in `wrangler.json` or Pages Settings): `TURNSTILE_SITE_KEY`, `CONTACT_TO_EMAIL`, optional `CONTACT_FROM_EMAIL`.
 
 Optional plain var (not secret) for `<lastmod>`:
 

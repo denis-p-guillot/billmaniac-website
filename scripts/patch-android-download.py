@@ -375,6 +375,8 @@ def patch_android_button_styling(src: str) -> str:
 
 
 def patch_contact_remove_phone(src: str) -> str:
+    if "CONTACT_FORM_V1" in src:
+        return src
     if "PHONE_TEL" not in src:
         return src
     src = re.sub(

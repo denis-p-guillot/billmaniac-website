@@ -2,6 +2,10 @@
   "name": "billmaniac-website",
   "pages_build_output_dir": "dist",
   "compatibility_date": "2025-06-25",
+  "vars": {
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAD7WNLls--dAbzwY",
+    "CONTACT_TO_EMAIL": "contact@billmaniac.win"
+  },
   "r2_buckets": [
     {
       "binding": "DOWNLOADS",
