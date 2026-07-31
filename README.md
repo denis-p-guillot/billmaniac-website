@@ -65,6 +65,17 @@ npx wrangler pages secret put RESEND_API_KEY --project-name=billmaniac-website
 
 Plain vars (in `wrangler.json` or Pages Settings): `TURNSTILE_SITE_KEY`, `CONTACT_TO_EMAIL`, optional `CONTACT_FROM_EMAIL`.
 
+## Analytics (SEO insights)
+
+`scripts/patch-analytics.py` runs on every deploy and:
+
+- Keeps **Google Analytics 4** (`G-FY5RTLMWZ9`) with `send_page_view: false` so the SPA does not double-count
+- Sends a **page view on every client route change** (`/contact`, `/pricing`, etc.) via `@/seo` — critical for measuring SEO landing pages
+- Fires a **`contact_form_submit`** event when the contact form succeeds
+- Optionally injects **Cloudflare Web Analytics** when `CF_WEB_ANALYTICS_TOKEN` is set in `.env`
+
+Link GA4 to [Google Search Console](https://search.google.com/search-console) (Admin → Product links) to correlate queries with on-site behaviour.
+
 Optional plain var (not secret) for `<lastmod>`:
 
 ```bash
