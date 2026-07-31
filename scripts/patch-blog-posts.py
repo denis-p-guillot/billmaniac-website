@@ -77,19 +77,20 @@ def main() -> None:
     imap = json.loads(m.group(2))
     trans = base64.b64decode(imap["imports"]["@/translations"].split(",", 1)[1]).decode("utf-8")
 
+    schedule = {item["slug"]: item["iso"] for item in data.get("schedule", [])}
+
     for lang in ("en", "fr", "es", "id"):
-        posts = data[lang]["posts"]
+        posts = []
+        for post in data[lang]["posts"]:
+            enriched = dict(post)
+            iso = schedule.get(enriched.get("slug"))
+            if iso:
+                enriched["publishedAt"] = iso
+            posts.append(enriched)
         trans = replace_posts_block(trans, lang, posts)
         print(f"  {lang}: {len(posts)} posts")
 
     imap["imports"]["@/translations"] = b64(trans)
-
-    blog_key = "@/components/Blog"
-    blog_src = base64.b64decode(imap["imports"][blog_key].split(",", 1)[1]).decode("utf-8")
-    blog_old = '(_jsxs("article", { className: "bg-slate-900 p-8 sm:p-12 rounded-lg border border-slate-800 shadow-xl", children:'
-    blog_new = '(_jsxs("article", { id: post.slug, className: "bg-slate-900 p-8 sm:p-12 rounded-lg border border-slate-800 shadow-xl", children:'
-    if blog_old in blog_src and "id: post.slug" not in blog_src:
-        imap["imports"][blog_key] = b64(blog_src.replace(blog_old, blog_new, 1))
 
     out = json.dumps(imap, separators=(",", ":"))
     INDEX.write_text(html[: m.start()] + m.group(1) + out + m.group(3) + html[m.end() :])
