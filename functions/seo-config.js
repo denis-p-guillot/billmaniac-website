@@ -1,5 +1,5 @@
 /** Shared SEO config for Cloudflare Pages middleware + sitemap. */
-import seoOverrides from "./seo-overrides.json" with { type: "json" };
+import seoOverrides from "./seo-overrides.js";
 
 export const SITE_ORIGIN = "https://billmaniac.win";
 export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/pics/og-billmaniac.svg`;

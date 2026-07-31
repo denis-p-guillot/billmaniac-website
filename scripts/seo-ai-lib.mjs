@@ -8,7 +8,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const ROOT = join(__dirname, "..");
-export const OVERRIDES_PATH = join(ROOT, "functions/seo-overrides.json");
+const OVERRIDES_JSON_PATH = join(ROOT, "functions/seo-overrides.json");
+const OVERRIDES_JS_PATH = join(ROOT, "functions/seo-overrides.js");
 export const SIGNALS_PATH = join(ROOT, "config/seo-signals.json");
 export const REPORT_PATH = join(ROOT, "config/seo-ai-report.json");
 

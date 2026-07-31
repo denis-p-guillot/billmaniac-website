@@ -68,20 +68,8 @@ def b64(text: str) -> str:
 
 
 def patch_seo_module(src: str) -> str:
-    if MARKER in src:
-        src = re.sub(r"/\* ANALYTICS_SPA_V1 \*/\n?", "", src)
-        src = re.sub(
-            r"\nexport const GA_MEASUREMENT_ID =[\s\S]*?/\* ANALYTICS_SPA_V1 \*/\n?",
-            "\n",
-            src,
-        )
-
-    if "export function trackPageView" in src:
-        src = re.sub(
-            r"export const GA_MEASUREMENT_ID =[\s\S]*?/\* ANALYTICS_SPA_V1 \*/\n?",
-            "",
-            src,
-        )
+    if MARKER in src and "trackPageView(seo)" in src:
+        return src
 
     if "export function applyClientSeo(seo)" not in src:
         raise SystemExit("applyClientSeo not found in @/seo")
@@ -116,24 +104,27 @@ def patch_contact_form(src: str) -> str:
 
 
 def patch_index_html(html: str) -> str:
-    body_pattern = re.compile(
-        r"<!-- Consent Manager and Analytics moved to the end of body[\s\S]*?"
-        r"gtag\('config', 'G-[^']+'\);\s*\n\s*</script>",
-        re.M,
-    )
-    if not body_pattern.search(html):
-        raise SystemExit("Analytics block not found in dist/index.html")
-    html = body_pattern.sub(GA_BODY.strip(), html, count=1)
+    if "send_page_view: false" in html and f"gtag/js?id={GA_ID}" in html:
+        out = html
+    else:
+        body_pattern = re.compile(
+            r"<!-- Consent Manager and Analytics moved to the end of body[\s\S]*?"
+            r"</script>\s*(?=</body>)",
+            re.M,
+        )
+        if not body_pattern.search(html):
+            raise SystemExit("Analytics block not found in dist/index.html")
+        out = body_pattern.sub(GA_BODY.strip(), html, count=1)
 
-    html = re.sub(
+    out = re.sub(
         r'\n\s*<script defer src="https://static\.cloudflareinsights\.com/beacon\.min\.js"[^>]*></script>',
         "",
-        html,
+        out,
     )
     if CF_BEACON_SNIPPET:
-        html = html.replace("</body>", CF_BEACON_SNIPPET + "\n  </body>", 1)
+        out = out.replace("</body>", CF_BEACON_SNIPPET + "\n  </body>", 1)
 
-    return html
+    return out
 
 
 def main() -> None:
