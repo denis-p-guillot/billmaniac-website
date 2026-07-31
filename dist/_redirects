@@ -1,6 +1,8 @@
-# Legacy sitemap URLs → canonical feed (submit /sitemap.xml in GSC, not redirects)
+# Legacy sitemap URLs → canonical feed (submit /sitemap.xml in GSC, no trailing slash)
 /sitemap1.xml /sitemap.xml 301
 /sitemap-1.xml /sitemap.xml 301
+/sitemap.xml/ /sitemap.xml 301
+/sitemap-images.xml/ /sitemap-images.xml 301
 
 # Cloudflare Pages — clean URL SPA fallback (backup to functions middleware)
 /features    /index.html  200

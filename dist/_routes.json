@@ -1,9 +1,13 @@
 {
   "version": 1,
-  "include": ["/*"],
+  "include": [
+    "/*"
+  ],
   "exclude": [
     "/pics/*",
     "/robots.txt",
+    "/sitemap.xml",
+    "/sitemap-images.xml",
     "/manifest.json",
     "/metadata.json",
     "/site-map",

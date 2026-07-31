@@ -101,11 +101,59 @@ Allow: /
 Disallow: /api/
 Disallow: /cdn-cgi/
 
-# Submit in Google Search Console: ${seoMod.SITEMAP_PAGES_URL}
+# Submit in Google Search Console (no trailing slash):
+# ${seoMod.SITEMAP_PAGES_URL}
 Sitemap: ${seoMod.SITEMAP_PAGES_URL}
 `,
   "utf8",
 );
+
+const routesPath = join(DIST, "_routes.json");
+const routes = existsSync(routesPath)
+  ? JSON.parse(readFileSync(routesPath, "utf8"))
+  : { version: 1, include: ["/*"], exclude: [] };
+const routeExcludes = new Set([
+  ...(routes.exclude || []),
+  "/pics/*",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/sitemap-images.xml",
+  "/manifest.json",
+  "/metadata.json",
+  "/site-map",
+  "/site-map.html",
+  "/*.txt",
+  "/_headers",
+  "/_redirects",
+]);
+routes.exclude = [...routeExcludes];
+writeFileSync(routesPath, `${JSON.stringify(routes, null, 2)}\n`, "utf8");
+
+const redirectsPath = join(DIST, "_redirects");
+const redirectLines = existsSync(redirectsPath)
+  ? readFileSync(redirectsPath, "utf8").split("\n")
+  : [];
+const sitemapRedirectBlock = [
+  "# Legacy sitemap URLs → canonical feed (submit /sitemap.xml in GSC, no trailing slash)",
+  "/sitemap1.xml /sitemap.xml 301",
+  "/sitemap-1.xml /sitemap.xml 301",
+  "/sitemap.xml/ /sitemap.xml 301",
+  "/sitemap-images.xml/ /sitemap-images.xml 301",
+];
+const withoutSitemapRedirects = redirectLines.filter(
+  (line) =>
+    !line.startsWith("/sitemap1.xml ") &&
+    !line.startsWith("/sitemap-1.xml ") &&
+    !line.startsWith("/sitemap.xml/ ") &&
+    !line.startsWith("/sitemap-images.xml/ ") &&
+    !line.includes("Legacy sitemap URLs"),
+);
+const spaStart = withoutSitemapRedirects.findIndex((line) =>
+  line.includes("Cloudflare Pages — clean URL SPA fallback"),
+);
+const tail =
+  spaStart >= 0 ? withoutSitemapRedirects.slice(spaStart) : withoutSitemapRedirects.filter(Boolean);
+writeFileSync(redirectsPath, [...sitemapRedirectBlock, "", ...tail].join("\n"), "utf8");
 
 console.log(`Static sitemap → dist/${seoMod.SITEMAP_PAGES_FILE} (${entries.length} URLs, lastmod=${lastmod})`);
 console.log(`Static HTML sitemap → dist/site-map.html (public URL /site-map)`);
