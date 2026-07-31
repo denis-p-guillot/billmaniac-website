@@ -48,6 +48,7 @@ run(process.execPath, [join(ROOT, "scripts/copy-android-apk.mjs")]);
 run("python3", [join(ROOT, "scripts/patch-android-download.py")]);
 run("python3", [join(ROOT, "scripts/patch-contact-form.py")]);
 run(process.execPath, [join(ROOT, "scripts/sync-client-seo.mjs")]);
+run("python3", [join(ROOT, "scripts/patch-blog-posts.py")]);
 run("python3", [join(ROOT, "scripts/patch-analytics.py")]);
 
 run(process.execPath, [join(ROOT, "scripts/generate-sitemap.mjs")]);
