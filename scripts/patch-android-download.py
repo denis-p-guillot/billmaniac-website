@@ -374,6 +374,60 @@ def patch_android_button_styling(src: str) -> str:
     raise SystemExit("Android buttons layout changed — update patch-android-download.py")
 
 
+def patch_contact_remove_phone(src: str) -> str:
+    if "PHONE_TEL" not in src:
+        return src
+    src = re.sub(
+        r'const PHONE_DISPLAY = "[^"]*";\nconst PHONE_TEL = "[^"]*";\nconst WA = "[^"]*";\n',
+        "",
+        src,
+        count=1,
+    )
+    phone_block = """                _jsxs("p", {
+                  className: "mt-6 text-slate-300",
+                  children: [
+                    _jsx("span", { className: "block text-sm text-slate-500", children: t.contact.phoneLabel }),
+                    _jsx("a", {
+                      href: `tel:${PHONE_TEL}`,
+                      className: "font-semibold text-brand-primary hover:text-brand-secondary underline",
+                      children: PHONE_DISPLAY,
+                    }),
+                  ],
+                }),"""
+    actions_old = """                _jsxs("div", {
+                  className: "mt-4 flex flex-wrap gap-3",
+                  children: [
+                    _jsx("a", {
+                      href: `https://wa.me/${WA}`,
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      className: "inline-flex items-center justify-center px-4 py-2 rounded-md bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500",
+                      children: t.contact.whatsappCta,
+                    }),
+                    _jsx("a", {
+                      href: "/checkout",
+                      className: "inline-flex items-center justify-center px-4 py-2 rounded-md bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark",
+                      children: t.contact.checkoutCta,
+                    }),
+                  ],
+                }),"""
+    actions_new = """                _jsx("div", {
+                  className: "mt-6",
+                  children: _jsx("a", {
+                    href: "/checkout",
+                    className: "inline-flex items-center justify-center px-4 py-2 rounded-md bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark",
+                    children: t.contact.checkoutCta,
+                  }),
+                }),"""
+    if phone_block in src:
+        src = src.replace(phone_block, "", 1)
+    if actions_old in src:
+        src = src.replace(actions_old, actions_new, 1)
+    if "PHONE_TEL" in src:
+        raise SystemExit("Contact phone block changed — update patch_contact_remove_phone")
+    return src
+
+
 def patch_header_button_styling(src: str) -> str:
     if "hidden sm:inline-flex items-center gap-1.5" in src:
         return src
@@ -451,12 +505,14 @@ def main() -> None:
     imap = json.loads(m.group(2))
     imports = imap["imports"]
 
+    contact_key = "@/components/Contact"
     android_key = "@/components/Android"
     hero_key = "@/components/Hero"
     header_key = "@/components/Header"
     footer_key = "@/components/Footer"
     trans_key = "@/translations"
     const_key = "@/constants"
+    contact_src = base64.b64decode(imports[contact_key].split(",", 1)[1]).decode("utf-8")
     android_src = base64.b64decode(imports[android_key].split(",", 1)[1]).decode("utf-8")
     hero_src = base64.b64decode(imports[hero_key].split(",", 1)[1]).decode("utf-8")
     header_src = base64.b64decode(imports[header_key].split(",", 1)[1]).decode("utf-8")
@@ -465,6 +521,7 @@ def main() -> None:
     const_src = base64.b64decode(imports[const_key].split(",", 1)[1]).decode("utf-8")
 
     imports[const_key] = b64(patch_constants_icons(const_src))
+    imports[contact_key] = b64(patch_contact_remove_phone(contact_src))
     imports[android_key] = b64(
         patch_android_button_styling(patch_android_component(android_src))
     )

@@ -45,9 +45,6 @@ import { useLanguage } from '@/LanguageContext';
 import { ArrowLeftIcon } from '@/constants';
 import { navigateToPath } from '@/seo';
 
-const PHONE_DISPLAY = "+62 (0) 81283803745";
-const PHONE_TEL = "+6281283803745";
-const WA = "6281283803745";
 const EMAIL_BIZ = "denis@digitek-computer.com";
 const EMAIL_GEN = "denis.digitek@gmail.com";
 const ADDRESS_LINES = [
@@ -85,33 +82,13 @@ const Contact = () => {
                 _jsx("h2", { className: "text-sm font-semibold uppercase tracking-wider text-brand-primary", children: t.contact.officeLabel }),
                 _jsx("p", { className: "mt-3 text-lg font-semibold text-white", children: "PT. DEVINCI GROUP INDONESIA" }),
                 _jsx("p", { className: "mt-3 text-slate-300 whitespace-pre-line", children: ADDRESS_LINES.join("\n") }),
-                _jsxs("p", {
-                  className: "mt-6 text-slate-300",
-                  children: [
-                    _jsx("span", { className: "block text-sm text-slate-500", children: t.contact.phoneLabel }),
-                    _jsx("a", {
-                      href: `tel:${PHONE_TEL}`,
-                      className: "font-semibold text-brand-primary hover:text-brand-secondary underline",
-                      children: PHONE_DISPLAY,
-                    }),
-                  ],
-                }),
-                _jsxs("div", {
-                  className: "mt-4 flex flex-wrap gap-3",
-                  children: [
-                    _jsx("a", {
-                      href: `https://wa.me/${WA}`,
-                      target: "_blank",
-                      rel: "noopener noreferrer",
-                      className: "inline-flex items-center justify-center px-4 py-2 rounded-md bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500",
-                      children: t.contact.whatsappCta,
-                    }),
-                    _jsx("a", {
-                      href: "/checkout",
-                      className: "inline-flex items-center justify-center px-4 py-2 rounded-md bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark",
-                      children: t.contact.checkoutCta,
-                    }),
-                  ],
+                _jsx("div", {
+                  className: "mt-6",
+                  children: _jsx("a", {
+                    href: "/checkout",
+                    className: "inline-flex items-center justify-center px-4 py-2 rounded-md bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark",
+                    children: t.contact.checkoutCta,
+                  }),
                 }),
               ],
             }),
