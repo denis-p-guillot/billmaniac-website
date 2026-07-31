@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 /**
- * Create Cloudflare WAF skip rules so Googlebot can fetch /sitemap.xml.
+ * Fix Google Search Console "Couldn't fetch" for /sitemap.xml on Cloudflare.
  *
- * Requires an API token with Zone:Firewall Services:Edit on billmaniac.win:
+ * Root cause: Bot Fight Mode / WAF often blocks real Googlebot (AS15169) while
+ * curl with a fake Googlebot user-agent still returns 200.
+ *
+ * This script whitelists Google ASNs via IP Access Rules (works with limited tokens).
+ * For Bot Fight Mode you still need the dashboard step below OR a token with
+ * Zone → Firewall Services → Edit to create modern WAF skip rules.
+ *
  *   CLOUDFLARE_API_TOKEN=... node scripts/cloudflare-gsc-sitemap-fix.mjs
- *
- * Without a token, prints dashboard steps (Bot Fight Mode is the usual cause of
- * GSC "Sitemap could not be read" while curl with a fake Googlebot UA still works).
  */
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -17,6 +20,12 @@ const ROOT = join(__dirname, "..");
 const ZONE_NAME = "billmaniac.win";
 const ACCOUNT =
   process.env.CLOUDFLARE_ACCOUNT_ID || "9345927ca3f495f89fdaddea61a5e3f9";
+
+/** Google primary + common cloud crawler ASNs. */
+const GOOGLE_ASNS = [
+  { asn: "15169", note: "Google LLC (Googlebot / Search Console fetch)" },
+  { asn: "396982", note: "Google Cloud (InspectionTool / some crawlers)" },
+];
 
 function loadEnvFile() {
   const envPath = join(ROOT, ".env");
@@ -44,39 +53,29 @@ const token = (process.env.CLOUDFLARE_API_TOKEN || "").trim();
 
 function dashboardSteps() {
   console.log(`
-Google Search Console still shows "Sitemap could not be read" even when the XML
-is valid in a browser. On Cloudflare sites this is almost always Bot Fight Mode
-blocking real Googlebot (curl with a fake Googlebot user-agent still returns 200).
+Google Search Console "Couldn't fetch" on Cloudflare — required dashboard steps:
 
-Do this in the Cloudflare dashboard for ${ZONE_NAME}:
+1. Security → Bots → Bot Fight Mode
+   • Turn OFF Bot Fight Mode (most common fix for Cloudflare Pages + GSC)
+   • Legacy firewall "skip" rules do NOT bypass Bot Fight Mode
 
-1. Security → Bots → Bot Fight Mode / Super Bot Fight Mode
-   • Turn OFF Bot Fight Mode, OR
-   • Set "Verified bots" to Allow
-
-2. Security → Events → filter last 24h for path /sitemap.xml
-   • If you see Block/Challenge for Googlebot, add a skip rule (step 3)
-
-3. Security → WAF → Custom rules → Create rule
+2. Security → WAF → Custom rules → Create rule (if Bot Fight stays on)
    • Name: Allow verified bots and sitemap feeds
    • Expression:
        (cf.client.bot) or (http.request.uri.path in {"/sitemap.xml" "/sitemap-images.xml" "/robots.txt" "/site-map"})
-   • Action: Skip → All remaining custom rules, Super Bot Fight Mode, and rate limits
+   • Action: Skip → Super Bot Fight Mode + all WAF phases
 
-4. Caching → Configuration → Purge Everything
+3. Security → Events → filter path /sitemap.xml → confirm no Block/Challenge for Google
 
-5. Google Search Console
-   • Use property that matches your URLs: https://billmaniac.win/ (or Domain: billmaniac.win)
-   • Delete ALL old sitemap rows (sitemap1.xml, sitemap-1.xml, failed attempts)
-   • Submit ONLY: https://billmaniac.win/sitemap.xml
-   • If URL Inspection Live Test on that URL succeeds, the Sitemaps report may still say
-     "could not be read" for days — that queue is separate; status is often stale/pending
-   • Also URL-inspect https://billmaniac.win/site-map and Request Indexing (HTML page)
+4. Caching → Purge Everything
 
-To create the WAF rule automatically, create an API token with
-Zone → Firewall Services → Edit for ${ZONE_NAME}, add to .env as:
-  CLOUDFLARE_API_TOKEN=...
-Then re-run: node scripts/cloudflare-gsc-sitemap-fix.mjs
+5. Google Search Console (property: https://billmaniac.win/)
+   • Delete failed sitemap rows
+   • Submit ONLY: https://billmaniac.win/sitemap.xml  (no trailing slash)
+   • URL Inspection → Live test on that exact URL
+
+To auto-whitelist Google ASNs, set CLOUDFLARE_API_TOKEN in .env and re-run.
+For WAF custom rules, the token also needs Zone → Firewall Services → Edit.
 `);
 }
 
@@ -90,24 +89,52 @@ async function cf(path, init = {}) {
     },
   });
   const body = await res.json();
-  if (!body.success) {
-    throw new Error(JSON.stringify(body.errors || body, null, 2));
+  return body;
+}
+
+async function ensureGoogleAsnWhitelist(zoneId) {
+  const list = await cf(
+    `/zones/${zoneId}/firewall/access_rules/rules?per_page=100`,
+  );
+  if (!list.success) {
+    throw new Error(
+      `Cannot list access rules: ${JSON.stringify(list.errors || list)}`,
+    );
   }
-  return body.result;
+
+  const existingAsns = new Set(
+    (list.result || [])
+      .filter((r) => r.configuration?.target === "asn")
+      .map((r) => String(r.configuration.value).replace(/^AS/i, "")),
+  );
+
+  for (const { asn, note } of GOOGLE_ASNS) {
+    if (existingAsns.has(asn)) {
+      console.log(`ASN ${asn} already whitelisted.`);
+      continue;
+    }
+    const created = await cf(`/zones/${zoneId}/firewall/access_rules/rules`, {
+      method: "POST",
+      body: JSON.stringify({
+        mode: "whitelist",
+        notes: note,
+        configuration: { target: "asn", value: asn },
+      }),
+    });
+    if (!created.success) {
+      console.warn(
+        `Could not whitelist ASN ${asn}: ${created.errors?.[0]?.message || "unknown error"}`,
+      );
+    } else {
+      console.log(`Whitelisted ASN ${asn} (${note}).`);
+    }
+  }
 }
 
 async function listLegacyFirewallRules(zoneId) {
-  try {
-    const res = await fetch(
-      `https://api.cloudflare.com/client/v4/zones/${zoneId}/firewall/rules?per_page=50`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    const body = await res.json();
-    if (!body.success) return null;
-    return body.result || [];
-  } catch {
-    return null;
-  }
+  const body = await cf(`/zones/${zoneId}/firewall/rules?per_page=50`);
+  if (!body.success) return null;
+  return body.result || [];
 }
 
 function reportExistingLegacyRules(rules) {
@@ -119,11 +146,60 @@ function reportExistingLegacyRules(rules) {
     );
   });
   if (sitemapRules.length === 0) return false;
-  console.log("Found existing WAF skip rules (legacy firewall rules API):");
+  console.log("Found legacy firewall skip rules (do not bypass Bot Fight Mode):");
   for (const rule of sitemapRules) {
     console.log(`  • ${rule.description}: ${rule.filter?.expression}`);
   }
   return true;
+}
+
+async function tryModernWafSkipRule(zoneId) {
+  const expression =
+    '(cf.client.bot) or (http.request.uri.path in {"/sitemap.xml" "/sitemap-images.xml" "/robots.txt" "/site-map" "/site-map.html"})';
+  const skipPhases = [
+    "http_request_firewall_managed",
+    "http_request_sbfm",
+    "http_rate_limit",
+    "http_request_firewall_custom",
+  ];
+
+  const rulesetBody = await cf(
+    `/zones/${zoneId}/rulesets/phases/http_request_firewall_custom/entrypoint`,
+  );
+  if (!rulesetBody.success) {
+    throw new Error(rulesetBody.errors?.[0]?.message || "rulesets API failed");
+  }
+  const ruleset = rulesetBody.result;
+  const existing = (ruleset.rules || []).find(
+    (r) => r.description === "Allow verified bots and sitemap feeds",
+  );
+  if (existing) {
+    console.log("Modern WAF skip rule already exists.");
+    return;
+  }
+
+  const update = await cf(`/zones/${zoneId}/rulesets/${ruleset.id}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      rules: [
+        ...(ruleset.rules || []),
+        {
+          action: "skip",
+          action_parameters: {
+            ruleset: "current",
+            phases: skipPhases,
+          },
+          description: "Allow verified bots and sitemap feeds",
+          expression,
+          enabled: true,
+        },
+      ],
+    }),
+  });
+  if (!update.success) {
+    throw new Error(update.errors?.[0]?.message || "ruleset update failed");
+  }
+  console.log("Created modern WAF skip rule (includes Super Bot Fight Mode).");
 }
 
 async function main() {
@@ -132,66 +208,28 @@ async function main() {
     return;
   }
 
-  const zones = await cf(`/zones?name=${ZONE_NAME}&account.id=${ACCOUNT}`);
-  const zone = zones.find((z) => z.name === ZONE_NAME) || zones[0];
+  const zonesBody = await cf(`/zones?name=${ZONE_NAME}&account.id=${ACCOUNT}`);
+  if (!zonesBody.success) {
+    throw new Error(JSON.stringify(zonesBody.errors || zonesBody));
+  }
+  const zone =
+    zonesBody.result.find((z) => z.name === ZONE_NAME) || zonesBody.result[0];
   if (!zone) throw new Error(`Zone not found: ${ZONE_NAME}`);
 
-  const expression =
-    '(cf.client.bot) or (http.request.uri.path in {"/sitemap.xml" "/sitemap-images.xml" "/robots.txt" "/site-map"})';
-
-  const skipPhases = [
-    "http_request_firewall_managed",
-    "http_request_sbfm",
-    "http_rate_limit",
-  ];
+  await ensureGoogleAsnWhitelist(zone.id);
 
   try {
-    const ruleset = await cf(
-      `/zones/${zone.id}/rulesets/phases/http_request_firewall_custom/entrypoint`,
-    );
-
-    const existing = (ruleset.rules || []).find(
-      (r) => r.description === "Allow verified bots and sitemap feeds",
-    );
-    if (existing) {
-      console.log("WAF skip rule already exists.");
-    } else {
-      await cf(`/zones/${zone.id}/rulesets/${ruleset.id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          rules: [
-            ...(ruleset.rules || []),
-            {
-              action: "skip",
-              action_parameters: {
-                ruleset: "current",
-                phases: skipPhases,
-              },
-              description: "Allow verified bots and sitemap feeds",
-              expression,
-              enabled: true,
-            },
-          ],
-        }),
-      });
-      console.log("Created WAF skip rule for verified bots + sitemap paths.");
-    }
+    await tryModernWafSkipRule(zone.id);
   } catch (rulesetError) {
-    console.warn(
-      `Could not manage rulesets API (${rulesetError.message}). Checking legacy rules…`,
-    );
+    console.warn(`Modern WAF rulesets API unavailable: ${rulesetError.message}`);
     const legacy = await listLegacyFirewallRules(zone.id);
-    if (legacy && reportExistingLegacyRules(legacy)) {
-      console.log(
-        "\nSitemap skip rules are already configured. If GSC still fails, disable Bot Fight Mode manually:",
-      );
-      console.log("  Security → Bots → Bot Fight Mode → OFF (or allow verified bots)");
-    } else {
-      throw rulesetError;
-    }
+    if (legacy) reportExistingLegacyRules(legacy);
+    console.warn(
+      "\nTurn OFF Bot Fight Mode manually: Security → Bots → Bot Fight Mode → OFF",
+    );
   }
 
-  console.log("\nPurge cache in dashboard (Caching → Purge Everything), then resubmit:");
+  console.log("\nNext: purge cache in Cloudflare dashboard, then in GSC resubmit:");
   console.log("  https://billmaniac.win/sitemap.xml");
 }
 
