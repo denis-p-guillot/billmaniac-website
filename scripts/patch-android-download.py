@@ -158,10 +158,235 @@ TRANSLATION_PATCHES = [
 ]
 
 
+CTA_STYLED_MARKER = "cta-btn-emerald"
+
+DOWNLOAD_ICON = """export const DownloadIcon = ({ className }) => (_jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className: className, children: [_jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), _jsx("polyline", { points: "7 10 12 15 17 10" }), _jsx("line", { x1: "12", y1: "15", x2: "12", y2: "3" })] }));"""
+
+SPARKLES_ICON = """export const SparklesIcon = ({ className }) => (_jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className: className, children: [_jsx("path", { d: "M12 3l1.4 5.2L18.5 10l-5.1 1.8L12 17l-1.4-5.2L5.5 10l5.1-1.8L12 3z" }), _jsx("path", { d: "M5 19l.9 1.8L7.7 22l-1.8.9L4 22l-.9-1.8L1.3 19l1.8-.9L4 16.2l.9 1.8z" })] }));"""
+
+LOG_IN_ICON = """export const LogInIcon = ({ className }) => (_jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className: className, children: [_jsx("path", { d: "M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" }), _jsx("polyline", { points: "10 17 15 12 10 7" }), _jsx("line", { x1: "15", y1: "12", x2: "3", y2: "12" })] }));"""
+
+USER_PLUS_ICON = """export const UserPlusIcon = ({ className }) => (_jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className: className, children: [_jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }), _jsx("circle", { cx: "8.5", cy: "7", r: "4" }), _jsx("line", { x1: "20", y1: "8", x2: "20", y2: "14" }), _jsx("line", { x1: "23", y1: "11", x2: "17", y2: "11" })] }));"""
+
+BTN_EMERALD_LG = (
+    "cta-btn-emerald group inline-flex items-center justify-center gap-2.5 rounded-xl px-8 py-4 "
+    "text-lg font-bold text-white bg-gradient-to-b from-emerald-500 to-emerald-600 "
+    "shadow-lg shadow-emerald-950/40 ring-1 ring-white/15 hover:from-emerald-400 hover:to-emerald-500 "
+    "hover:shadow-emerald-500/30 active:scale-[0.98] transition-all duration-200 "
+    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "
+    "focus-visible:outline-emerald-400 w-full sm:w-auto min-h-[52px]"
+)
+
+BTN_PRIMARY_LG = (
+    "cta-btn-primary group inline-flex items-center justify-center gap-2.5 rounded-xl px-8 py-4 "
+    "text-lg font-bold text-white bg-gradient-to-b from-brand-primary to-brand-dark "
+    "shadow-lg shadow-indigo-950/50 ring-1 ring-white/15 hover:from-indigo-500 hover:to-brand-dark "
+    "hover:shadow-brand-primary/30 active:scale-[0.98] transition-all duration-200 "
+    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "
+    "focus-visible:outline-brand-primary w-full sm:w-auto min-h-[52px]"
+)
+
+BTN_EMERALD_SM = (
+    "cta-btn-emerald group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 "
+    "text-sm font-semibold text-white bg-gradient-to-b from-emerald-500 to-emerald-600 "
+    "shadow-lg shadow-emerald-950/40 ring-1 ring-white/15 hover:from-emerald-400 hover:to-emerald-500 "
+    "hover:shadow-emerald-500/30 active:scale-[0.98] transition-all duration-200 "
+    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "
+    "focus-visible:outline-emerald-400 w-full sm:w-auto min-h-[44px]"
+)
+
+BTN_PRIMARY_SM = (
+    "cta-btn-primary group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 "
+    "text-sm font-semibold text-white bg-gradient-to-b from-brand-primary to-brand-dark "
+    "shadow-lg shadow-indigo-950/50 ring-1 ring-white/15 hover:from-indigo-500 hover:to-brand-dark "
+    "hover:shadow-brand-primary/30 active:scale-[0.98] transition-all duration-200 "
+    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "
+    "focus-visible:outline-brand-primary w-full sm:w-auto min-h-[44px]"
+)
+
+BTN_GHOST_SM = (
+    "cta-btn-ghost group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 "
+    "text-sm font-semibold text-white bg-slate-800/90 border border-slate-600/80 "
+    "shadow-md shadow-black/20 ring-1 ring-white/5 hover:bg-slate-700 hover:border-slate-500 "
+    "active:scale-[0.98] transition-all duration-200 w-full sm:w-auto min-h-[44px]"
+)
+
+HERO_BUTTONS_PLAIN = f"""            _jsxs("div", {{
+              className: "mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start",
+              children: [
+                _jsx("a", {{
+                  href: "{APK_HREF}",
+                  className: "w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-emerald-600 rounded-lg hover:bg-emerald-500 transition-colors shadow-lg min-h-[48px]",
+                  children: t.hero.ctaApk || "Download Android App"
+                }}),
+                _jsx("a", {{
+                  href: "https://my.billmaniac.win",
+                  className: "w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-brand-primary rounded-lg hover:bg-brand-dark transition-colors shadow-lg min-h-[48px]",
+                  children: t.hero.cta
+                }})
+              ]
+            }}),"""
+
+HERO_BUTTONS_STYLED = f"""            _jsxs("div", {{
+              className: "mt-10 flex flex-col sm:flex-row flex-wrap gap-4 justify-center lg:justify-start",
+              children: [
+                _jsxs("a", {{
+                  href: "{APK_HREF}",
+                  className: "{BTN_EMERALD_LG}",
+                  children: [
+                    _jsx(DownloadIcon, {{ "aria-hidden": "true", className: "h-5 w-5 shrink-0 opacity-95 group-hover:translate-y-0.5 transition-transform" }}),
+                    _jsx("span", {{ children: t.hero.ctaApk || "Download Android App" }})
+                  ]
+                }}),
+                _jsxs("a", {{
+                  href: "https://my.billmaniac.win",
+                  className: "{BTN_PRIMARY_LG}",
+                  children: [
+                    _jsx(SparklesIcon, {{ "aria-hidden": "true", className: "h-5 w-5 shrink-0 opacity-95" }}),
+                    _jsx("span", {{ children: t.hero.cta }})
+                  ]
+                }})
+              ]
+            }}),"""
+
+ANDROID_BUTTONS_PLAIN = f"""              _jsxs("div", {{
+                className: "mt-8 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3",
+                children: [
+                  _jsx("a", {{
+                    href: "{APK_HREF}",
+                    className: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-emerald-500 transition-colors w-full sm:w-auto min-h-[44px]",
+                    children: a.ctaApk || "Download Android App"
+                  }}),
+                  _jsx("a", {{
+                    href: "https://my.billmaniac.win",
+                    className: "inline-flex items-center justify-center rounded-md bg-brand-primary px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-brand-dark transition-colors",
+                    children: a.ctaWeb
+                  }}),
+                  _jsx("a", {{
+                    href: "#android-features",
+                    className: "inline-flex items-center justify-center rounded-md bg-slate-800 px-6 py-3 text-sm font-semibold text-white border border-slate-700 hover:bg-slate-700 transition-colors",
+                    children: a.ctaFeatures
+                  }})
+                ]
+              }}),"""
+
+ANDROID_BUTTONS_STYLED = f"""              _jsxs("div", {{
+                className: "mt-8 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3",
+                children: [
+                  _jsxs("a", {{
+                    href: "{APK_HREF}",
+                    className: "{BTN_EMERALD_SM}",
+                    children: [
+                      _jsx(DownloadIcon, {{ "aria-hidden": "true", className: "h-4 w-4 shrink-0 group-hover:translate-y-0.5 transition-transform" }}),
+                      _jsx("span", {{ children: a.ctaApk || "Download Android App" }})
+                    ]
+                  }}),
+                  _jsxs("a", {{
+                    href: "https://my.billmaniac.win",
+                    className: "{BTN_PRIMARY_SM}",
+                    children: [
+                      _jsx(SparklesIcon, {{ "aria-hidden": "true", className: "h-4 w-4 shrink-0" }}),
+                      _jsx("span", {{ children: a.ctaWeb }})
+                    ]
+                  }}),
+                  _jsxs("a", {{
+                    href: "#android-features",
+                    className: "{BTN_GHOST_SM}",
+                    children: [
+                      _jsx(ArrowRightIcon, {{ "aria-hidden": "true", className: "h-4 w-4 shrink-0 group-hover:translate-x-0.5 transition-transform" }}),
+                      _jsx("span", {{ children: a.ctaFeatures }})
+                    ]
+                  }})
+                ]
+              }}),"""
+
+HEADER_LOGIN_PLAIN = """                  _jsx("a", {
+                    href: "https://my.billmaniac.win",
+                    className: "hidden sm:inline-block text-sm font-semibold bg-slate-700 text-white px-3 py-2 rounded-md hover:bg-slate-600 transition-colors",
+                    children: t.header.login,
+                  }),"""
+
+HEADER_LOGIN_STYLED = """                  _jsxs("a", {
+                    href: "https://my.billmaniac.win",
+                    className: "hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold bg-slate-800/90 text-white px-3.5 py-2 rounded-lg border border-slate-600/70 shadow-sm hover:bg-slate-700 hover:border-slate-500 active:scale-[0.98] transition-all duration-200",
+                    children: [
+                      _jsx(LogInIcon, { "aria-hidden": "true", className: "h-4 w-4 shrink-0 opacity-90" }),
+                      _jsx("span", { children: t.header.login })
+                    ],
+                  }),"""
+
+HEADER_SIGNUP_PLAIN = """                  _jsx("a", {
+                    href: "https://my.billmaniac.win",
+                    className: "hidden sm:inline-block text-sm font-semibold bg-brand-primary text-white px-3 py-2 rounded-md hover:bg-brand-dark transition-colors shadow-lg",
+                    children: t.header.signUp,
+                  }),"""
+
+HEADER_SIGNUP_STYLED = """                  _jsxs("a", {
+                    href: "https://my.billmaniac.win",
+                    className: "hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-white px-3.5 py-2 rounded-lg bg-gradient-to-b from-brand-primary to-brand-dark shadow-lg shadow-indigo-950/40 ring-1 ring-white/10 hover:from-indigo-500 hover:to-brand-dark active:scale-[0.98] transition-all duration-200",
+                    children: [
+                      _jsx(UserPlusIcon, { "aria-hidden": "true", className: "h-4 w-4 shrink-0 opacity-95" }),
+                      _jsx("span", { children: t.header.signUp })
+                    ],
+                  }),"""
+
+
 def b64(src: str) -> str:
     return "data:application/javascript;base64," + base64.b64encode(
         src.encode("utf-8")
     ).decode("ascii")
+
+
+def patch_constants_icons(src: str) -> str:
+    if "export const DownloadIcon" in src:
+        return src
+    marker = "export const MenuIcon"
+    if marker not in src:
+        raise SystemExit("constants layout changed — update patch-android-download.py")
+    icons = "\n".join([DOWNLOAD_ICON, SPARKLES_ICON, LOG_IN_ICON, USER_PLUS_ICON]) + "\n"
+    return src.replace(marker, icons + marker, 1)
+
+
+def patch_hero_button_styling(src: str) -> str:
+    if CTA_STYLED_MARKER in src:
+        return src
+    if "DownloadIcon" not in src:
+        src = src.replace(
+            "import { useLanguage } from '@/LanguageContext';",
+            "import { useLanguage } from '@/LanguageContext';\nimport { DownloadIcon, SparklesIcon } from '@/constants';",
+            1,
+        )
+    if HERO_BUTTONS_PLAIN in src:
+        return src.replace(HERO_BUTTONS_PLAIN, HERO_BUTTONS_STYLED, 1)
+    raise SystemExit("Hero buttons layout changed — update patch-android-download.py")
+
+
+def patch_android_button_styling(src: str) -> str:
+    if CTA_STYLED_MARKER in src:
+        return src
+    src = src.replace(
+        "import { ArrowLeftIcon } from '@/constants';",
+        "import { ArrowLeftIcon, ArrowRightIcon, DownloadIcon, SparklesIcon } from '@/constants';",
+        1,
+    )
+    if ANDROID_BUTTONS_PLAIN in src:
+        return src.replace(ANDROID_BUTTONS_PLAIN, ANDROID_BUTTONS_STYLED, 1)
+    raise SystemExit("Android buttons layout changed — update patch-android-download.py")
+
+
+def patch_header_button_styling(src: str) -> str:
+    if "hidden sm:inline-flex items-center gap-1.5" in src:
+        return src
+    src = src.replace(
+        "import { BillManiacLogo } from '@/constants';",
+        "import { BillManiacLogo, LogInIcon, UserPlusIcon } from '@/constants';",
+        1,
+    )
+    out = src.replace(HEADER_LOGIN_PLAIN, HEADER_LOGIN_STYLED, 1)
+    out = out.replace(HEADER_SIGNUP_PLAIN, HEADER_SIGNUP_STYLED, 1)
+    if out == src:
+        raise SystemExit("Header buttons layout changed — update patch-android-download.py")
+    return out
 
 
 def patch_android_component(src: str) -> str:
@@ -228,22 +453,30 @@ def main() -> None:
 
     android_key = "@/components/Android"
     hero_key = "@/components/Hero"
+    header_key = "@/components/Header"
     footer_key = "@/components/Footer"
     trans_key = "@/translations"
+    const_key = "@/constants"
     android_src = base64.b64decode(imports[android_key].split(",", 1)[1]).decode("utf-8")
     hero_src = base64.b64decode(imports[hero_key].split(",", 1)[1]).decode("utf-8")
+    header_src = base64.b64decode(imports[header_key].split(",", 1)[1]).decode("utf-8")
     footer_src = base64.b64decode(imports[footer_key].split(",", 1)[1]).decode("utf-8")
     trans_src = base64.b64decode(imports[trans_key].split(",", 1)[1]).decode("utf-8")
+    const_src = base64.b64decode(imports[const_key].split(",", 1)[1]).decode("utf-8")
 
-    imports[android_key] = b64(patch_android_component(android_src))
-    imports[hero_key] = b64(patch_hero_component(hero_src))
+    imports[const_key] = b64(patch_constants_icons(const_src))
+    imports[android_key] = b64(
+        patch_android_button_styling(patch_android_component(android_src))
+    )
+    imports[hero_key] = b64(patch_hero_button_styling(patch_hero_component(hero_src)))
+    imports[header_key] = b64(patch_header_button_styling(header_src))
     imports[footer_key] = b64(patch_footer_nav(footer_src))
     imports[trans_key] = b64(patch_translations(trans_src))
 
     imap["imports"] = imports
     out = json.dumps(imap, separators=(",", ":"))
     INDEX.write_text(html[: m.start()] + m.group(1) + out + m.group(3) + html[m.end() :])
-    print(f"Patched Android + Hero download CTAs, translations, footer nav in {INDEX}")
+    print(f"Patched CTA buttons (Hero, Android, Header), icons, translations in {INDEX}")
 
 
 if __name__ == "__main__":
