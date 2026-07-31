@@ -1,0 +1,21 @@
+{
+  "updatedAt": null,
+  "source": "Export from Google Search Console → Performance, or GA4 Search Console reports",
+  "topQueries": [
+    {
+      "query": "receipt scanner app",
+      "clicks": 0,
+      "impressions": 0,
+      "ctr": 0,
+      "position": 0
+    }
+  ],
+  "topPages": [
+    {
+      "path": "/",
+      "clicks": 0,
+      "impressions": 0
+    }
+  ],
+  "notes": "Update monthly. The AI optimizer reads config/seo-signals.json if present."
+}

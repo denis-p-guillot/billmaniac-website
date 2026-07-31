@@ -74,7 +74,30 @@ Plain vars (in `wrangler.json` or Pages Settings): `TURNSTILE_SITE_KEY`, `CONTAC
 - Fires a **`contact_form_submit`** event when the contact form succeeds
 - Optionally injects **Cloudflare Web Analytics** when `CF_WEB_ANALYTICS_TOKEN` is set in `.env`
 
-Link GA4 to [Google Search Console](https://search.google.com/search-console) (Admin → Product links) to correlate queries with on-site behaviour.
+Link GA4 to [Google Search Console](https://search.google.com/search-console) (GA4 Admin → Product links → Search Console links) to correlate queries with on-site behaviour.
+
+## AI SEO optimization
+
+Programmatic loop to improve meta titles/descriptions from search intent + optional GSC signals:
+
+| Piece | Role |
+|-------|------|
+| `functions/seo-config.js` | Base SEO for every route (server + sitemap) |
+| `functions/seo-overrides.json` | AI-generated title/description/keyword patches (reviewable in git) |
+| `scripts/seo-ai-optimize.mjs` | Calls OpenAI, writes overrides + report |
+| `scripts/sync-client-seo.mjs` | Syncs merged SEO into SPA `@/seo` (runs on deploy) |
+| `config/seo-signals.example.json` | Template for GSC/GA4 performance export |
+
+```bash
+cp config/seo-signals.example.json config/seo-signals.json   # optional
+# OPENAI_API_KEY in .env
+
+npm run seo:optimize                    # dry-run → config/seo-ai-report.json
+npm run seo:optimize -- --apply         # write overrides + sync client
+npm run deploy                          # publish + IndexNow
+```
+
+Update `config/seo-signals.json` monthly with top queries/pages from Search Console so the AI prioritizes pages with impressions but low CTR.
 
 Optional plain var (not secret) for `<lastmod>`:
 

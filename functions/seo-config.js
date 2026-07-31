@@ -1,4 +1,6 @@
 /** Shared SEO config for Cloudflare Pages middleware + sitemap. */
+import seoOverrides from "./seo-overrides.json" with { type: "json" };
+
 export const SITE_ORIGIN = "https://billmaniac.win";
 export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/pics/og-billmaniac.svg`;
 /** Raster OG image for image sitemaps (Google does not index SVG in image sitemaps). */
@@ -25,7 +27,7 @@ export const SITEMAP_IMAGES_URL = `${SITE_ORIGIN}/${SITEMAP_IMAGES_FILE}`;
  */
 
 /** @type {Record<string, SeoPage>} */
-export const SEO_PAGES = {
+const BASE_SEO_PAGES = {
   "/": {
     title: "Bill Maniac: Smart Expense Management & AI Receipt Scanner",
     description:
@@ -175,6 +177,24 @@ export const SEO_PAGES = {
     images: [SITEMAP_OG_IMAGE],
   },
 };
+
+function applySeoOverrides(pages) {
+  /** @type {Record<string, SeoPage>} */
+  const out = {};
+  for (const [path, page] of Object.entries(pages)) {
+    out[path] = { ...page };
+  }
+  for (const [path, patch] of Object.entries(seoOverrides.pages || {})) {
+    if (!out[path] || !patch || typeof patch !== "object") continue;
+    if (patch.title) out[path].title = patch.title;
+    if (patch.description) out[path].description = patch.description;
+    if (patch.keywords) out[path].keywords = patch.keywords;
+  }
+  return out;
+}
+
+/** Merged base config + AI overrides (`functions/seo-overrides.json`). */
+export const SEO_PAGES = applySeoOverrides(BASE_SEO_PAGES);
 
 /** Site-wide images referenced in the image sitemap. */
 export const SITE_IMAGES = [

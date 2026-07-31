@@ -1,0 +1,166 @@
+#!/usr/bin/env node
+/**
+ * AI SEO optimizer — uses OpenAI to refresh meta titles/descriptions/keywords.
+ *
+ * Usage:
+ *   OPENAI_API_KEY=sk-... npm run seo:optimize              # dry-run report
+ *   OPENAI_API_KEY=sk-... npm run seo:optimize -- --apply     # write overrides + sync client
+ *   npm run seo:optimize -- --page /pricing --apply
+ *
+ * Optional: config/seo-signals.json (GSC/GA4 export) to steer optimization.
+ */
+import { writeFileSync, readFileSync, existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import {
+  ROOT,
+  OVERRIDES_PATH,
+  REPORT_PATH,
+  PRODUCT_CONTEXT,
+  loadEnvFile,
+  loadSeoPages,
+  loadSignals,
+  validatePageMeta,
+  callOpenAi,
+  buildOptimizationPrompt,
+} from "./seo-ai-lib.mjs";
+
+const args = process.argv.slice(2);
+const apply = args.includes("--apply");
+const pageArgIdx = args.indexOf("--page");
+const singlePage = pageArgIdx >= 0 ? args[pageArgIdx + 1] : null;
+const model = process.env.OPENAI_SEO_MODEL || "gpt-4o-mini";
+
+loadEnvFile();
+
+async function main() {
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  if (!apiKey) {
+    console.error(
+      "Missing OPENAI_API_KEY. Add to .env or run:\n  OPENAI_API_KEY=sk-... npm run seo:optimize",
+    );
+    process.exit(1);
+  }
+
+  const pages = await loadSeoPages();
+  const signals = loadSignals();
+
+  let focusPaths = Object.keys(pages).filter((p) => pages[p].index !== false);
+  if (singlePage) {
+    if (!pages[singlePage]) {
+      console.error(`Unknown page: ${singlePage}`);
+      process.exit(1);
+    }
+    focusPaths = [singlePage];
+  }
+
+  // Prioritize commercial + landing pages first in prompt order.
+  const priorityOrder = [
+    "/",
+    "/features",
+    "/pricing",
+    "/android",
+    "/services",
+    "/faq",
+    "/contact",
+    "/about",
+    "/blog",
+    "/technical",
+    "/privacy",
+    "/terms",
+    "/data-deletion",
+  ];
+  focusPaths.sort((a, b) => {
+    const ia = priorityOrder.indexOf(a);
+    const ib = priorityOrder.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+
+  console.log(`Optimizing ${focusPaths.length} page(s) with ${model}…`);
+
+  const system = `You are an expert SEO strategist for a B2C/SMB SaaS marketing site.
+${PRODUCT_CONTEXT}
+Output valid JSON only. Improve relevance for search intent without keyword stuffing.`;
+
+  const user = buildOptimizationPrompt({ pages, signals, focusPaths });
+  const { parsed, model: usedModel } = await callOpenAi({ apiKey, model, system, user });
+
+  const validatedPages = {};
+  for (const [path, meta] of Object.entries(parsed.pages || {})) {
+    if (!pages[path]) continue;
+    validatedPages[path] = validatePageMeta(path, meta);
+  }
+
+  const report = {
+    generatedAt: new Date().toISOString(),
+    model: usedModel,
+    apply,
+    strategy: parsed.strategy || "",
+    priorities: parsed.priorities || [],
+    pages: validatedPages,
+    contentIdeas: parsed.contentIdeas || [],
+    changes: Object.entries(validatedPages).map(([path, next]) => ({
+      path,
+      before: {
+        title: pages[path].title,
+        description: pages[path].description,
+        keywords: pages[path].keywords || "",
+      },
+      after: next,
+    })),
+  };
+
+  writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2) + "\n", "utf8");
+  console.log(`\nStrategy: ${report.strategy}\n`);
+  console.log(`Report → ${REPORT_PATH}\n`);
+
+  for (const change of report.changes) {
+    console.log(`## ${change.path}`);
+    console.log(`  title: ${change.after.title}`);
+    console.log(`  desc:  ${change.after.description}`);
+    if (change.after.keywords) console.log(`  keys:  ${change.after.keywords}`);
+    console.log();
+  }
+
+  if (report.contentIdeas.length) {
+    console.log("Content ideas:");
+    for (const idea of report.contentIdeas) {
+      console.log(`  • [${idea.page}] ${idea.topic} ← "${idea.targetQuery}"`);
+    }
+    console.log();
+  }
+
+  if (!apply) {
+    console.log("Dry run — re-run with --apply to write functions/seo-overrides.json and sync client SEO.");
+    return;
+  }
+
+  const existing = existsSync(OVERRIDES_PATH)
+    ? JSON.parse(readFileSync(OVERRIDES_PATH, "utf8"))
+    : { version: 1, pages: {} };
+
+  const mergedPages = { ...(existing.pages || {}), ...validatedPages };
+  const overrides = {
+    version: 1,
+    updatedAt: report.generatedAt,
+    model: usedModel,
+    strategy: report.strategy,
+    pages: mergedPages,
+    contentIdeas: report.contentIdeas,
+  };
+
+  writeFileSync(OVERRIDES_PATH, JSON.stringify(overrides, null, 2) + "\n", "utf8");
+  console.log(`Wrote ${OVERRIDES_PATH}`);
+
+  const sync = spawnSync("node", [ROOT + "/scripts/sync-client-seo.mjs"], {
+    cwd: ROOT,
+    stdio: "inherit",
+  });
+  if (sync.status !== 0) process.exit(sync.status || 1);
+
+  console.log("\nApplied. Run npm run deploy to publish + notify search engines.");
+}
+
+main().catch((err) => {
+  console.error(err.message || err);
+  process.exit(1);
+});

@@ -2,6 +2,8 @@
 .env
 config/sitemap-notify.secret
 config/sitemap-submit.state.json
+config/seo-ai-report.json
+config/seo-signals.json
 
 # OS / tooling
 .DS_Store
