@@ -12,27 +12,38 @@ ROOT = Path(__file__).resolve().parent.parent
 INDEX = ROOT / "dist/index.html"
 BLOG_JSON = ROOT / "config/blog-posts.json"
 
-LANG_MARKERS = {
-    "en": ('"blog": {', '"privacy": {'),
-    "fr": ('"blog": {', '"privacy": {'),
-    "es": ('"blog": {', '"privacy": {'),
-    "id": ('"blog": {', '"privacy": {'),
-}
-
 
 def b64(text: str) -> str:
     return "data:text/javascript;base64," + base64.b64encode(text.encode("utf-8")).decode("ascii")
 
 
 def posts_to_js(posts: list, indent: str = "                ") -> str:
-    raw = json.dumps(posts, ensure_ascii=False, indent=4)
-    lines = raw.splitlines()
-    return "\n".join(indent + line for line in lines)
+    """Serialize posts as a flat JS array (one object per post, no extra wrapper [])."""
+    chunks = []
+    for post in posts:
+        raw = json.dumps(post, ensure_ascii=False, indent=4)
+        lines = raw.splitlines()
+        chunks.append("\n".join(indent + line for line in lines))
+    return ",\n".join(chunks)
+
+
+def find_bracket_end(text: str, open_idx: int) -> int:
+    """Return index after the matching closing ] for text[open_idx] == '['."""
+    depth = 0
+    i = open_idx
+    while i < len(text):
+        ch = text[i]
+        if ch == "[":
+            depth += 1
+        elif ch == "]":
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    raise SystemExit("posts array end not found")
 
 
 def replace_posts_block(trans: str, lang: str, posts: list) -> str:
-    """Replace blog.posts array for a language section."""
-    # Find nth blog block per language order in file
     lang_order = ["en", "fr", "es", "id"]
     idx = lang_order.index(lang)
     pos = 0
@@ -40,23 +51,17 @@ def replace_posts_block(trans: str, lang: str, posts: list) -> str:
     for _ in range(idx + 1):
         blog_start = trans.find('"blog": {', pos)
         if blog_start < 0:
-            raise SystemExit(f'blog section not found for lang {lang}')
+            raise SystemExit(f"blog section not found for lang {lang}")
         pos = blog_start + 1
 
-    posts_key = trans.find('"posts": [', blog_start)
-    if posts_key < 0:
+    posts_label = trans.find('"posts": [', blog_start)
+    if posts_label < 0:
         raise SystemExit(f'"posts" not found in blog for {lang}')
 
-    # End of posts array: closing ], before privacy within same blog block
-    privacy_in_blog = trans.find('"privacy":', blog_start)
-    # Actually privacy is sibling after blog closes. Find ],\n        },\n        "privacy"
-    end_marker = re.search(r"\n            \]\n        \},\n        \"privacy\":", trans[posts_key:])
-    if not end_marker:
-        raise SystemExit(f"posts array end not found for {lang}")
-
-    end = posts_key + end_marker.start() + len('\n            ]')
+    array_start = posts_label + len('"posts": ')
+    array_end = find_bracket_end(trans, array_start)
     new_posts = '"posts": [\n' + posts_to_js(posts) + "\n            ]"
-    return trans[:posts_key] + new_posts + trans[end:]
+    return trans[:posts_label] + new_posts + trans[array_end:]
 
 
 def main() -> None:
