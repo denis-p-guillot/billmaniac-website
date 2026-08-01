@@ -179,6 +179,15 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const path = normalizePath(url.pathname);
 
+  // Crawler feeds must never pass through SPA HTML middleware.
+  if (
+    path === "/sitemap.xml" ||
+    path === "/sitemap-images.xml" ||
+    path === "/robots.txt"
+  ) {
+    return next();
+  }
+
   if (path === "/index.tsx" || path === "/index.ts" || path === "/main.tsx") {
     return new Response("/* legacy entry disabled; use importmap @/index */\n", {
       status: 200,

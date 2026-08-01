@@ -6,8 +6,6 @@
   "exclude": [
     "/pics/*",
     "/robots.txt",
-    "/sitemap.xml",
-    "/sitemap-images.xml",
     "/manifest.json",
     "/metadata.json",
     "/site-map",

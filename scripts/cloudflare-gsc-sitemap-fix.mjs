@@ -36,7 +36,14 @@ const WAF_SKIP_EXPRESSION =
 const WAF_SKIP_PHASES = [
   "http_request_firewall_managed",
   "http_request_sbfm",
+  "http_ratelimit",
 ];
+
+const LEGACY_SITEMAP_RULE_NAMES = new Set([
+  WAF_SKIP_DESCRIPTION,
+  "Google Sitemap",
+  "Google Crawler Bot",
+]);
 
 function loadEnvFile() {
   const envPath = join(ROOT, ".env");
@@ -153,7 +160,7 @@ async function ensureGoogleAsnWhitelist(zoneId) {
   }
 }
 
-async function tryModernWafSkipRule(zoneId) {
+async function consolidateWafSkipRules(zoneId) {
   const rulesetBody = await cf(
     `/zones/${zoneId}/rulesets/phases/http_request_firewall_custom/entrypoint`,
   );
@@ -161,36 +168,33 @@ async function tryModernWafSkipRule(zoneId) {
     throw new Error(rulesetBody.errors?.[0]?.message || "rulesets API failed");
   }
   const ruleset = rulesetBody.result;
-  const existing = (ruleset.rules || []).find(
-    (r) => r.description === WAF_SKIP_DESCRIPTION,
+  const otherRules = (ruleset.rules || []).filter(
+    (rule) => !LEGACY_SITEMAP_RULE_NAMES.has(rule.description || ""),
   );
-  if (existing) {
-    console.log("Modern WAF skip rule already exists.");
-    return true;
-  }
+
+  const skipRule = {
+    action: "skip",
+    action_parameters: {
+      ruleset: "current",
+      phases: WAF_SKIP_PHASES,
+    },
+    description: WAF_SKIP_DESCRIPTION,
+    expression: WAF_SKIP_EXPRESSION,
+    enabled: true,
+  };
 
   const update = await cf(`/zones/${zoneId}/rulesets/${ruleset.id}`, {
     method: "PUT",
     body: JSON.stringify({
-      rules: [
-        ...(ruleset.rules || []),
-        {
-          action: "skip",
-          action_parameters: {
-            ruleset: "current",
-            phases: WAF_SKIP_PHASES,
-          },
-          description: WAF_SKIP_DESCRIPTION,
-          expression: WAF_SKIP_EXPRESSION,
-          enabled: true,
-        },
-      ],
+      rules: [skipRule, ...otherRules],
     }),
   });
   if (!update.success) {
     throw new Error(update.errors?.[0]?.message || "ruleset update failed");
   }
-  console.log("Created modern WAF skip rule (includes Super Bot Fight Mode).");
+  console.log(
+    "Consolidated WAF skip rule (first in chain; covers sitemap + verified bots).",
+  );
   return true;
 }
 
@@ -205,8 +209,9 @@ async function tryDisableBotFightMode(zoneId) {
 
   const fightMode = current.result?.fight_mode;
   const sbfm = current.result?.sbfm;
-  if (fightMode === false && sbfm?.enabled !== true) {
-    console.log("Bot Fight Mode already off.");
+  const enableJs = current.result?.enable_js;
+  if (fightMode === false && sbfm?.enabled !== true && enableJs === false) {
+    console.log("Bot Fight Mode already off (JS challenge disabled).");
     return true;
   }
 
@@ -214,6 +219,7 @@ async function tryDisableBotFightMode(zoneId) {
     method: "PATCH",
     body: JSON.stringify({
       fight_mode: false,
+      enable_js: false,
       ...(sbfm ? { sbfm: { ...sbfm, enabled: false } } : {}),
     }),
   });
@@ -263,7 +269,7 @@ async function main() {
   let wafOk = false;
   let botOk = false;
   try {
-    wafOk = await tryModernWafSkipRule(zone.id);
+    wafOk = await consolidateWafSkipRules(zone.id);
   } catch (rulesetError) {
     console.warn(`WAF skip rule failed: ${rulesetError.message}`);
     if (/auth/i.test(rulesetError.message)) {

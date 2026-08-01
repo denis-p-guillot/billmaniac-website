@@ -116,8 +116,6 @@ const routeExcludes = new Set([
   ...(routes.exclude || []),
   "/pics/*",
   "/robots.txt",
-  "/sitemap.xml",
-  "/sitemap-images.xml",
   "/manifest.json",
   "/metadata.json",
   "/site-map",
@@ -135,10 +133,10 @@ const redirectLines = existsSync(redirectsPath)
   : [];
 const sitemapRedirectBlock = [
   "# Legacy sitemap URLs → canonical feed (submit /sitemap.xml in GSC, no trailing slash)",
-  "/sitemap1.xml /sitemap.xml 301",
-  "/sitemap-1.xml /sitemap.xml 301",
-  "/sitemap.xml/ /sitemap.xml 301",
-  "/sitemap-images.xml/ /sitemap-images.xml 301",
+  "/sitemap1.xml https://billmaniac.win/sitemap.xml 301",
+  "/sitemap-1.xml https://billmaniac.win/sitemap.xml 301",
+  "/sitemap.xml/ https://billmaniac.win/sitemap.xml 301",
+  "/sitemap-images.xml/ https://billmaniac.win/sitemap-images.xml 301",
 ];
 const withoutSitemapRedirects = redirectLines.filter(
   (line) =>
