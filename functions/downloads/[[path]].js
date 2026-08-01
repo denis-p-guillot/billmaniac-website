@@ -24,7 +24,9 @@ export async function onRequestGet(context) {
   object.writeHttpMetadata(headers);
   headers.set("Content-Type", APK_CONTENT_TYPE);
   headers.set("Content-Disposition", `attachment; filename="${filename}"`);
-  headers.set("Cache-Control", "public, max-age=3600, must-revalidate");
+  // APK updates must not be edge-cached — stale builds break auth/signup fixes.
+  headers.set("Cache-Control", "no-store, must-revalidate");
+  headers.set("CDN-Cache-Control", "no-store");
 
   return new Response(object.body, { headers });
 }

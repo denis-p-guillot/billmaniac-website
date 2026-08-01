@@ -9,9 +9,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "dist" / "index.html"
-APK_HREF = "https://billmaniac.win/downloads/billmaniac-pro.apk"
-APK_FILENAME = "billmaniac-pro.apk"
-RELATIVE_APK_HREF = "/downloads/billmaniac-pro.apk"
+APK_BUILD = "8"
+APK_FILENAME = "billmaniac-pro-v8.apk"
+APK_HREF = f"https://billmaniac.win/downloads/{APK_FILENAME}"
+RELATIVE_APK_HREF = f"/downloads/{APK_FILENAME}"
+
+OLD_APK_HREFS = (
+    "https://billmaniac.win/downloads/billmaniac-pro.apk",
+    f"https://billmaniac.win/downloads/billmaniac-pro.apk?build={APK_BUILD}",
+    "/downloads/billmaniac-pro.apk",
+    f"/downloads/billmaniac-pro.apk?build={APK_BUILD}",
+)
 
 FOOTER_NAV_OLD = """    if (!href || href.startsWith("//") || href.includes("://")) return;
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
@@ -364,14 +372,6 @@ def patch_hero_button_styling(src: str) -> str:
 def patch_android_button_styling(src: str) -> str:
     if CTA_STYLED_MARKER in src:
         return src
-    src = src.replace(
-        "import { ArrowLeftIcon } from '@/constants';",
-        "import { ArrowLeftIcon, ArrowRightIcon, DownloadIcon, SparklesIcon } from '@/constants';",
-        1,
-    )
-    if ANDROID_BUTTONS_PLAIN in src:
-        return src.replace(ANDROID_BUTTONS_PLAIN, ANDROID_BUTTONS_STYLED, 1)
-    raise SystemExit("Android buttons layout changed — update patch-android-download.py")
 
 
 def patch_contact_remove_phone(src: str) -> str:
@@ -445,7 +445,18 @@ def patch_header_button_styling(src: str) -> str:
     return out
 
 
+def patch_apk_hrefs(src: str) -> str:
+    out = src
+    for old in OLD_APK_HREFS:
+        replacement = APK_HREF if old.startswith("http") else RELATIVE_APK_HREF
+        out = out.replace(old, replacement)
+    if APK_HREF not in out:
+        raise SystemExit("APK download href not found — update patch-android-download.py")
+    return out
+
+
 def patch_android_component(src: str) -> str:
+    src = patch_apk_hrefs(src)
     if APK_HREF in src and "ctaApk ||" in src:
         return src
     src = src.replace(
@@ -471,6 +482,7 @@ def patch_android_component(src: str) -> str:
 
 
 def patch_hero_component(src: str) -> str:
+    src = patch_apk_hrefs(src)
     if APK_HREF in src and "t.hero.ctaApk" in src:
         return src
     if HERO_OLD not in src:
