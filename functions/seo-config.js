@@ -1,5 +1,6 @@
 /** Shared SEO config for Cloudflare Pages middleware + sitemap. */
 import seoOverrides from "./seo-overrides.js";
+import { BLOG_SEO_INDEX } from "./blog-seo-index.js";
 
 export const SITE_ORIGIN = "https://billmaniac.win";
 export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/pics/og-billmaniac.svg`;
@@ -122,7 +123,7 @@ const BASE_SEO_PAGES = {
     title: "Contact — Bill Maniac",
     description: "Get in touch with the Bill Maniac team for support, partnerships, or product questions.",
     path: "/contact",
-    priority: 0.7,
+    priority: 0.85,
     changefreq: "monthly",
     pageKey: "contact",
     images: [SITEMAP_OG_IMAGE],
@@ -221,16 +222,42 @@ export function normalizePath(pathname) {
   return trimmed || "/";
 }
 
+function blogPostSeo(slug, post) {
+  const base = SEO_PAGES["/blog"];
+  return {
+    ...base,
+    title: `${post.title} — Bill Maniac`,
+    description: post.description,
+    path: `/blog/${slug}`,
+    priority: 0.5,
+    changefreq: "monthly",
+    pageKey: "blog",
+    keywords: base.keywords,
+    images: base.images,
+  };
+}
+
 export function getSeoForPath(pathname) {
   const path = normalizePath(pathname);
+  if (path.startsWith("/blog/") && path !== "/blog") {
+    const slug = path.slice("/blog/".length);
+    const post = BLOG_SEO_INDEX[slug];
+    if (post) return blogPostSeo(slug, post);
+  }
   return SEO_PAGES[path] || SEO_PAGES["/"];
 }
 
 export function isIndexablePath(pathname) {
-  const page = getSeoForPath(pathname);
-  return page.index !== false;
+  const path = normalizePath(pathname);
+  if (path.startsWith("/blog/") && BLOG_SEO_INDEX[path.slice("/blog/".length)]) {
+    return true;
+  }
+  const page = SEO_PAGES[path];
+  return page ? page.index !== false : false;
 }
 
 export function listIndexablePages() {
-  return Object.values(SEO_PAGES).filter((page) => page.index !== false);
+  const staticPages = Object.values(SEO_PAGES).filter((page) => page.index !== false);
+  const blogPages = Object.entries(BLOG_SEO_INDEX).map(([slug, post]) => blogPostSeo(slug, post));
+  return [...staticPages, ...blogPages];
 }

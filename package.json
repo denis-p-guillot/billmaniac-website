@@ -12,6 +12,7 @@
     "deploy": "node scripts/deploy.mjs",
     "setup:contact-secrets": "node scripts/setup-contact-secrets.mjs",
     "seo:sync": "node scripts/sync-client-seo.mjs",
+    "seo:import-ga4": "node scripts/import-ga4-pages.mjs",
     "seo:optimize": "node scripts/seo-ai-optimize.mjs",
     "blog:generate": "node scripts/generate-blog-posts.mjs",
     "blog:patch": "python3 scripts/patch-blog-posts.py",
