@@ -112,10 +112,14 @@ const routesPath = join(DIST, "_routes.json");
 const routes = existsSync(routesPath)
   ? JSON.parse(readFileSync(routesPath, "utf8"))
   : { version: 1, include: ["/*"], exclude: [] };
+// Bypass Pages Functions for XML feeds — static + _headers is more reliable for
+// Googlebot than functions/sitemap.xml.js (some edges returned HTTP 500).
 const routeExcludes = new Set([
   ...(routes.exclude || []),
   "/pics/*",
   "/robots.txt",
+  `/${seoMod.SITEMAP_PAGES_FILE}`,
+  `/${seoMod.SITEMAP_IMAGES_FILE}`,
   "/manifest.json",
   "/metadata.json",
   "/site-map",

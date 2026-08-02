@@ -12,6 +12,8 @@
     "/site-map.html",
     "/*.txt",
     "/_headers",
-    "/_redirects"
+    "/_redirects",
+    "/sitemap.xml",
+    "/sitemap-images.xml"
   ]
 }
