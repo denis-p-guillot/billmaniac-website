@@ -37,6 +37,7 @@ const WAF_SKIP_PHASES = [
   "http_request_firewall_managed",
   "http_request_sbfm",
   "http_ratelimit",
+  "http_request_firewall_custom",
 ];
 
 const LEGACY_SITEMAP_RULE_NAMES = new Set([
@@ -226,6 +227,9 @@ async function tryDisableBotFightMode(zoneId) {
   if (!patch.success) {
     console.warn(
       `Could not disable Bot Fight Mode via API: ${patch.errors?.[0]?.message || "unknown"}`,
+    );
+    console.warn(
+      "Manual fix required: Cloudflare Dashboard → Security → Bots → disable JS Detections (enable_js).",
     );
     return false;
   }
