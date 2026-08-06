@@ -182,22 +182,23 @@ async function consolidateWafSkipRules(zoneId) {
     (rule) => !LEGACY_SITEMAP_RULE_NAMES.has(rule.description || ""),
   );
 
-  const skipRule = {
-    action: "skip",
-    action_parameters: {
-      ruleset: "current",
-      phases: WAF_SKIP_PHASES,
-      products: WAF_SKIP_PRODUCTS,
-    },
-    description: WAF_SKIP_DESCRIPTION,
-    expression: WAF_SKIP_EXPRESSION,
-    enabled: true,
-  };
-
   const update = await cf(`/zones/${zoneId}/rulesets/${ruleset.id}`, {
     method: "PUT",
     body: JSON.stringify({
-      rules: [skipRule, ...otherRules],
+      rules: [
+        {
+          action: "skip",
+          action_parameters: {
+            ruleset: "current",
+            phases: WAF_SKIP_PHASES,
+            products: WAF_SKIP_PRODUCTS,
+          },
+          description: WAF_SKIP_DESCRIPTION,
+          expression: WAF_SKIP_EXPRESSION,
+          enabled: true,
+        },
+        ...otherRules,
+      ],
     }),
   });
   if (!update.success) {

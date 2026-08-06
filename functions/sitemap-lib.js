@@ -38,8 +38,6 @@ export function buildPagesSitemapXml(lastmod) {
       (e) => `  <url>
     <loc>${escapeXml(e.loc)}</loc>
     <lastmod>${e.lastmod}</lastmod>
-    <changefreq>${escapeXml(e.changefreq)}</changefreq>
-    <priority>${Number(e.priority).toFixed(1)}</priority>
   </url>`,
     )
     .join("\n");
