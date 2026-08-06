@@ -215,24 +215,28 @@ async function tryDisableBotFightMode(zoneId) {
     return true;
   }
 
-  const patch = await cf(`/zones/${zoneId}/bot_management`, {
-    method: "PATCH",
+  const put = await cf(`/zones/${zoneId}/bot_management`, {
+    method: "PUT",
     body: JSON.stringify({
       fight_mode: false,
       enable_js: false,
+      ai_bots_protection: current.result?.ai_bots_protection ?? "disabled",
+      content_bots_protection: current.result?.content_bots_protection ?? "disabled",
+      crawler_protection: current.result?.crawler_protection ?? "disabled",
+      cf_robots_variant: current.result?.cf_robots_variant ?? "policy_only",
       ...(sbfm ? { sbfm: { ...sbfm, enabled: false } } : {}),
     }),
   });
-  if (!patch.success) {
+  if (!put.success) {
     console.warn(
-      `Could not disable Bot Fight Mode via API: ${patch.errors?.[0]?.message || "unknown"}`,
+      `Could not disable JS Detections via API: ${put.errors?.[0]?.message || "unknown"}`,
     );
     console.warn(
-      "Manual fix required: Cloudflare Dashboard → Security → Bots → disable JS Detections (enable_js).",
+      "On Free plan there is often no dashboard toggle — create a zone token with Bot Management Edit and re-run npm run gsc:cloudflare-fix.",
     );
     return false;
   }
-  console.log("Disabled Bot Fight Mode via API.");
+  console.log("Disabled JS Detections (enable_js) via API.");
   return true;
 }
 
