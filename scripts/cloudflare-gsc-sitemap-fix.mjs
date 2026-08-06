@@ -38,6 +38,16 @@ const WAF_SKIP_PHASES = [
   "http_request_sbfm",
   "http_ratelimit",
 ];
+/** Non-ruleset products (uaBlock, BIC, security level) — required for some GSC fetchers. */
+const WAF_SKIP_PRODUCTS = [
+  "zoneLockdown",
+  "uaBlock",
+  "bic",
+  "hot",
+  "securityLevel",
+  "rateLimit",
+  "waf",
+];
 
 const LEGACY_SITEMAP_RULE_NAMES = new Set([
   WAF_SKIP_DESCRIPTION,
@@ -177,6 +187,7 @@ async function consolidateWafSkipRules(zoneId) {
     action_parameters: {
       ruleset: "current",
       phases: WAF_SKIP_PHASES,
+      products: WAF_SKIP_PRODUCTS,
     },
     description: WAF_SKIP_DESCRIPTION,
     expression: WAF_SKIP_EXPRESSION,
