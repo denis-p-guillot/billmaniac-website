@@ -19,6 +19,7 @@
     "gsc:token-check": "node scripts/cloudflare-token-check.mjs",
     "gsc:cloudflare-fix": "node scripts/cloudflare-gsc-sitemap-fix.mjs",
     "gsc:diagnose": "node scripts/gsc-sitemap-diagnose.mjs",
+    "gsc:setup-feeds": "node scripts/setup-feeds-subdomain.mjs",
     "deploy:pages": "CLOUDFLARE_ACCOUNT_ID=9345927ca3f495f89fdaddea61a5e3f9 wrangler pages deploy dist --project-name=billmaniac-website --commit-dirty=true"
   }
 }

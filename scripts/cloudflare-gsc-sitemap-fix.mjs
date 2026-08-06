@@ -37,7 +37,6 @@ const WAF_SKIP_PHASES = [
   "http_request_firewall_managed",
   "http_request_sbfm",
   "http_ratelimit",
-  "http_request_firewall_custom",
 ];
 
 const LEGACY_SITEMAP_RULE_NAMES = new Set([

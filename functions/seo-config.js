@@ -3,12 +3,19 @@ import seoOverrides from "./seo-overrides.js";
 import { BLOG_SEO_INDEX } from "./blog-seo-index.js";
 
 export const SITE_ORIGIN = "https://billmaniac.win";
+/** DNS-only subdomain — bypasses billmaniac.win zone bot/JS checks for crawler feeds. */
+export const SITEMAP_FEED_HOST = "feeds.billmaniac.win";
+export const SITEMAP_FEED_ORIGIN = `https://${SITEMAP_FEED_HOST}`;
 export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/pics/og-billmaniac.svg`;
 /** Raster OG image for image sitemaps (Google does not index SVG in image sitemaps). */
 export const SITEMAP_OG_IMAGE = `${SITE_ORIGIN}/pics/og-cover.jpg`;
 export const SITEMAP_PAGES_FILE = "sitemap.xml";
 export const SITEMAP_PAGES_PATH = `/${SITEMAP_PAGES_FILE}`;
 export const SITEMAP_PAGES_URL = `${SITE_ORIGIN}${SITEMAP_PAGES_PATH}`;
+/** Submit this exact URL in Google Search Console (Domain property billmaniac.win). */
+export const SITEMAP_GSC_URL = SITEMAP_PAGES_URL;
+/** Optional DNS-only feed host — only use in GSC after feeds CNAME is live (npm run gsc:setup-feeds). */
+export const SITEMAP_FEED_GSC_URL = `${SITEMAP_FEED_ORIGIN}${SITEMAP_PAGES_PATH}`;
 export const SITEMAP_IMAGES_FILE = "sitemap-images.xml";
 export const SITEMAP_IMAGES_URL = `${SITE_ORIGIN}/${SITEMAP_IMAGES_FILE}`;
 

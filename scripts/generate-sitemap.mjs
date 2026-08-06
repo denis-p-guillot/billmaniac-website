@@ -116,8 +116,9 @@ export const SITEMAP_LASTMOD = ${JSON.stringify(lastmod)};
 export const SITEMAP_FINGERPRINT = ${JSON.stringify(fingerprint)};
 export const INDEXNOW_KEY_PUBLIC = ${JSON.stringify(indexNowKey)};
 export const SITEMAP_URL_COUNT = ${entries.length};
-export const SITEMAP_INDEX_URL = ${JSON.stringify(seoMod.SITEMAP_PAGES_URL)};
+export const SITEMAP_INDEX_URL = ${JSON.stringify(seoMod.SITEMAP_GSC_URL)};
 export const SITEMAP_PAGES_URL = ${JSON.stringify(seoMod.SITEMAP_PAGES_URL)};
+export const SITEMAP_GSC_URL = ${JSON.stringify(seoMod.SITEMAP_GSC_URL)};
 export const SITEMAP_IMAGES_URL = ${JSON.stringify(seoMod.SITEMAP_IMAGES_URL)};
 `,
   "utf8",
@@ -131,9 +132,9 @@ Allow: /
 Disallow: /api/
 Disallow: /cdn-cgi/
 
-# Submit in Google Search Console (no trailing slash):
-# ${seoMod.SITEMAP_PAGES_URL}
-Sitemap: ${seoMod.SITEMAP_PAGES_URL}
+# Submit in Google Search Console (Domain property billmaniac.win):
+# ${seoMod.SITEMAP_GSC_URL}
+Sitemap: ${seoMod.SITEMAP_GSC_URL}
 `,
   "utf8",
 );
@@ -190,6 +191,9 @@ writeFileSync(redirectsPath, [...sitemapRedirectBlock, "", ...tail].join("\n"), 
 console.log(`Static sitemap → dist/${seoMod.SITEMAP_PAGES_FILE} (${entries.length} URLs, lastmod=${lastmod})`);
 console.log(`Static HTML sitemap → dist/site-map.html (public URL /site-map)`);
 console.log(`Static image sitemap → dist/${seoMod.SITEMAP_IMAGES_FILE}`);
-console.log(`Submit in GSC: ${seoMod.SITEMAP_PAGES_URL}`);
+console.log(`Submit in GSC: ${seoMod.SITEMAP_GSC_URL}`);
+if (seoMod.SITEMAP_FEED_GSC_URL) {
+  console.log(`Optional feeds URL (after DNS): ${seoMod.SITEMAP_FEED_GSC_URL}`);
+}
 console.log(`IndexNow key file → dist/${indexNowKey}.txt`);
 console.log(`fingerprint=${fingerprint.slice(0, 12)}…`);

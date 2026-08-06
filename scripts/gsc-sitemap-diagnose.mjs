@@ -53,6 +53,15 @@ async function main() {
   console.log(`\nSitemap URLs: ${locs.length}`);
   console.log(`Hosts in <loc>: ${hosts.join(", ")}`);
 
+  try {
+    const feeds = await fetch("https://feeds.billmaniac.win/sitemap.xml", {
+      headers: { "User-Agent": CHECKS[0].ua },
+    });
+    console.log(`feeds.billmaniac.win: HTTP ${feeds.status}`);
+  } catch {
+    console.log("feeds.billmaniac.win: DNS missing — do NOT submit this URL in GSC");
+  }
+
   console.log(`
 Most common GSC cause when the sitemap returns HTTP 200:
   • Wrong Search Console property (www vs non-www URL prefix)

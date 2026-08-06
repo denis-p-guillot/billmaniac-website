@@ -4,6 +4,6 @@ Allow: /
 Disallow: /api/
 Disallow: /cdn-cgi/
 
-# Submit in Google Search Console (no trailing slash):
+# Submit in Google Search Console (Domain property billmaniac.win):
 # https://billmaniac.win/sitemap.xml
 Sitemap: https://billmaniac.win/sitemap.xml
