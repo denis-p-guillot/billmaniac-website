@@ -5,5 +5,5 @@ Disallow: /api/
 Disallow: /cdn-cgi/
 
 # Submit in Google Search Console (Domain property billmaniac.win):
-# https://billmaniac.win/sitemap.xml
-Sitemap: https://billmaniac.win/sitemap.xml
+# https://feeds.billmaniac.win/sitemap.xml
+Sitemap: https://feeds.billmaniac.win/sitemap.xml

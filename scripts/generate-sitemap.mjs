@@ -192,8 +192,6 @@ console.log(`Static sitemap → dist/${seoMod.SITEMAP_PAGES_FILE} (${entries.len
 console.log(`Static HTML sitemap → dist/site-map.html (public URL /site-map)`);
 console.log(`Static image sitemap → dist/${seoMod.SITEMAP_IMAGES_FILE}`);
 console.log(`Submit in GSC: ${seoMod.SITEMAP_GSC_URL}`);
-if (seoMod.SITEMAP_FEED_GSC_URL) {
-  console.log(`Optional feeds URL (after DNS): ${seoMod.SITEMAP_FEED_GSC_URL}`);
-}
+console.log(`Apex mirror: ${seoMod.SITEMAP_APEX_GSC_URL}`);
 console.log(`IndexNow key file → dist/${indexNowKey}.txt`);
 console.log(`fingerprint=${fingerprint.slice(0, 12)}…`);

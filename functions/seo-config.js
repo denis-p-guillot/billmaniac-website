@@ -13,9 +13,9 @@ export const SITEMAP_PAGES_FILE = "sitemap.xml";
 export const SITEMAP_PAGES_PATH = `/${SITEMAP_PAGES_FILE}`;
 export const SITEMAP_PAGES_URL = `${SITE_ORIGIN}${SITEMAP_PAGES_PATH}`;
 /** Submit this exact URL in Google Search Console (Domain property billmaniac.win). */
-export const SITEMAP_GSC_URL = SITEMAP_PAGES_URL;
-/** Optional DNS-only feed host — only use in GSC after feeds CNAME is live (npm run gsc:setup-feeds). */
-export const SITEMAP_FEED_GSC_URL = `${SITEMAP_FEED_ORIGIN}${SITEMAP_PAGES_PATH}`;
+export const SITEMAP_GSC_URL = `${SITEMAP_FEED_ORIGIN}${SITEMAP_PAGES_PATH}`;
+/** Apex mirror (zone proxy; may be blocked by some GSC fetchers). */
+export const SITEMAP_APEX_GSC_URL = SITEMAP_PAGES_URL;
 export const SITEMAP_IMAGES_FILE = "sitemap-images.xml";
 export const SITEMAP_IMAGES_URL = `${SITE_ORIGIN}/${SITEMAP_IMAGES_FILE}`;
 
